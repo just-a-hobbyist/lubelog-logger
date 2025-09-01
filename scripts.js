@@ -1,52 +1,94 @@
 // --- DOM Element Selection ---
 const loginModal = document.getElementById('login-modal');
 const loginForm = document.getElementById('login-form');
+const vehicleList = document.getElementById('vehicle-list');
+
+/**
+ * Fetches the list of vehicles from the LubeLogger API.
+ * @param {object} credentials - The user's credentials object.
+ * @param {string} credentials.domain - The server address (e.g., http://127.0.0.1:5000).
+ * @param {string} credentials.username - The user's username.
+ * @param {string} credentials.password - The user's password.
+ */
+async function fetchVehicles(credentials) {
+    console.log("Attempting to fetch vehicles from:", credentials.domain);
+
+    // Base64 encode the username and password for Basic Authentication.
+    const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
+
+    const headers = {
+        'Authorization': `${encodedCredentials}`
+    };
+
+    try {
+        const response = await fetch(`${credentials.domain}/api/vehicles`, {
+            method: 'GET',
+            headers: headers
+        });
+
+        if (!response.ok) {
+            // If the server responds with an error (e.g., 401 Unauthorized), throw an error.
+            throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+        }
+
+        const vehicles = await response.json();
+        console.log("Successfully fetched vehicles:", vehicles);
+        
+        // We will handle rendering the vehicle cards in a later step.
+        // For now, let's clear the placeholder content.
+        vehicleList.innerHTML = ''; 
+        
+        // TODO: Create and append vehicle cards to the `vehicleList` element.
+
+    } catch (error) {
+        console.error("Failed to fetch vehicles:", error);
+        // You could show an error message to the user here.
+        alert(`Error fetching vehicles: ${error.message}. Please check your credentials and server address.`);
+        
+        // Since the fetch failed, we should show the login modal again.
+        localStorage.removeItem('lubeLoggerCreds'); // Clear potentially bad credentials
+        loginModal.classList.remove('hidden');
+    }
+}
+
 
 // --- Core App Logic ---
-// This runs after the HTML document has been fully loaded and parsed.
-// The 'defer' attribute in the script tag in index.html ensures this behavior.
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if user credentials are saved in the browser's local storage
     const savedCreds = localStorage.getItem('lubeLoggerCreds');
 
     if (!savedCreds) {
-        // If no credentials are found, show the login modal by removing the 'hidden' class.
         loginModal.classList.remove('hidden');
     } else {
-        // If credentials exist, we can proceed to fetch vehicle data.
-        // This part will be built out in the next steps.
-        console.log("Credentials found, ready to fetch vehicles.");
-        // fetchVehicles(JSON.parse(savedCreds));
+        console.log("Credentials found, fetching vehicles.");
+        const creds = JSON.parse(savedCreds);
+        fetchVehicles(creds); // Fetch data on app load
     }
 });
 
 // --- Event Listeners ---
-// Listen for the form submission event
 loginForm.addEventListener('submit', (event) => {
-    event.preventDefault(); // Prevent the form from causing a page reload
+    event.preventDefault(); 
     
-    const domain = event.target.domain.value; 
+    let domain = event.target.domain.value.trim();
     const username = event.target.username.value;
     const password = event.target.password.value;
 
-    if (username && password) {
-        // In a real application, you would first make an API call to verify these credentials.
-        
-        // For now, we will save them to localStorage and hide the modal.
+    // Ensure the domain is an absolute URL by adding http:// if it's missing.
+    if (domain && !domain.startsWith('http://') && !domain.startsWith('https://')) {
+        domain = 'http://' + domain;
+    }
+
+    if (domain && username && password) {
         const credentials = { domain, username, password };
         localStorage.setItem('lubeLoggerCreds', JSON.stringify(credentials));
-
-        console.log("Credentials saved.");
-
-        // Hide the modal by adding the 'hidden' class back.
+        console.log("Credentials and server address saved.");
         loginModal.classList.add('hidden');
         
-        // Now you would trigger the initial data fetch with the new credentials
-        // fetchVehicles(credentials);
+        fetchVehicles(credentials); // Fetch data immediately after login
     }
 });
 
-// Register the service worker for PWA functionality (enables offline access, etc.)
+// Register the service worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/service-worker.js')
@@ -58,3 +100,4 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+
