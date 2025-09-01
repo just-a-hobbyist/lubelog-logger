@@ -4,6 +4,64 @@ const loginForm = document.getElementById('login-form');
 const vehicleList = document.getElementById('vehicle-list');
 
 /**
+ * Renders the vehicle data into clickable cards in the UI.
+ * @param {Array<object>} vehicles - An array of vehicle objects from the API.
+ */
+function renderVehicles(vehicles) {
+    // Clear any existing content (like the placeholders or a "no vehicles" message)
+    vehicleList.innerHTML = '';
+
+    if (!vehicles || vehicles.length === 0) {
+        vehicleList.innerHTML = '<p class="no-vehicles-message">No vehicles found.</p>';
+        return;
+    }
+
+    vehicles.forEach(vehicle => {
+        // 1. Create the main link element (the card)
+        const cardLink = document.createElement('a');
+        cardLink.href = '#'; // Placeholder link for future navigation
+        cardLink.className = 'vehicle-card';
+        cardLink.dataset.vehicleId = vehicle.id; // Store the vehicle ID on the element for later use
+
+        // 2. Create the container for the text
+        const textContainer = document.createElement('div');
+
+        // 3. Create and populate the vehicle name paragraph
+        const nameParagraph = document.createElement('p');
+        nameParagraph.className = 'vehicle-name';
+        nameParagraph.textContent = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+
+        // 4. Create and populate the license plate paragraph
+        const plateParagraph = document.createElement('p');
+        plateParagraph.className = 'vehicle-plate';
+        plateParagraph.textContent = vehicle.licensePlate;
+
+        // 5. Create the chevron icon SVG (this is more robust than innerHTML)
+        const chevronIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        chevronIcon.setAttribute('class', 'chevron-icon');
+        chevronIcon.setAttribute('fill', 'none');
+        chevronIcon.setAttribute('viewBox', '0 0 24 24');
+        chevronIcon.setAttribute('stroke', 'currentColor');
+        const chevronPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        chevronPath.setAttribute('stroke-linecap', 'round');
+        chevronPath.setAttribute('stroke-linejoin', 'round');
+        chevronPath.setAttribute('stroke-width', '2');
+        chevronPath.setAttribute('d', 'M9 5l7 7-7 7');
+        chevronIcon.appendChild(chevronPath);
+
+        // 6. Assemble the card by appending the new elements
+        textContainer.appendChild(nameParagraph);
+        textContainer.appendChild(plateParagraph);
+        cardLink.appendChild(textContainer);
+        cardLink.appendChild(chevronIcon);
+
+        // 7. Append the fully assembled card to the vehicle list in the DOM
+        vehicleList.appendChild(cardLink);
+    });
+}
+
+
+/**
  * Fetches the list of vehicles from the LubeLogger API.
  * @param {object} credentials - The user's credentials object.
  * @param {string} credentials.domain - The server address (e.g., http://127.0.0.1:5000).
@@ -15,9 +73,9 @@ async function fetchVehicles(credentials) {
 
     // Base64 encode the username and password for Basic Authentication.
     const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
-
+    
     const headers = {
-        'Authorization': `${encodedCredentials}`
+        'Authorization': `Basic ${encodedCredentials}`
     };
 
     try {
@@ -27,26 +85,21 @@ async function fetchVehicles(credentials) {
         });
 
         if (!response.ok) {
-            // If the server responds with an error (e.g., 401 Unauthorized), throw an error.
             throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
         }
 
         const vehicles = await response.json();
         console.log("Successfully fetched vehicles:", vehicles);
         
-        // We will handle rendering the vehicle cards in a later step.
-        // For now, let's clear the placeholder content.
-        vehicleList.innerHTML = ''; 
-        
-        // TODO: Create and append vehicle cards to the `vehicleList` element.
+        // NEW: Call the render function with the fetched data
+        renderVehicles(vehicles);
+        localStorage.setItem("vehicles", JSON.stringify(vehicles));
 
     } catch (error) {
         console.error("Failed to fetch vehicles:", error);
-        // You could show an error message to the user here.
         alert(`Error fetching vehicles: ${error.message}. Please check your credentials and server address.`);
         
-        // Since the fetch failed, we should show the login modal again.
-        localStorage.removeItem('lubeLoggerCreds'); // Clear potentially bad credentials
+        localStorage.removeItem('lubeLoggerCreds');
         loginModal.classList.remove('hidden');
     }
 }
@@ -59,9 +112,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!savedCreds) {
         loginModal.classList.remove('hidden');
     } else {
-        console.log("Credentials found, fetching vehicles.");
-        const creds = JSON.parse(savedCreds);
-        fetchVehicles(creds); // Fetch data on app load
+        console.log("Credentials found.");
+        const vehiclesJSON = localStorage.getItem('vehicles');
+        if (!vehiclesJSON) {
+            fetchVehicles(JSON.parse(savedCreds));
+        } else {
+            try {
+                console.log("Vehicles found, rendering");
+                renderVehicles(JSON.parse(vehiclesJSON));
+            } catch (e) {
+                console.error("Failed to parse cached vehicle data. Refetching.", e);
+                fetchVehicles(creds); // Fallback to fetching from network
+            }
+        }
     }
 });
 
@@ -73,7 +136,6 @@ loginForm.addEventListener('submit', (event) => {
     const username = event.target.username.value;
     const password = event.target.password.value;
 
-    // Ensure the domain is an absolute URL by adding http:// if it's missing.
     if (domain && !domain.startsWith('http://') && !domain.startsWith('https://')) {
         domain = 'http://' + domain;
     }
@@ -84,7 +146,7 @@ loginForm.addEventListener('submit', (event) => {
         console.log("Credentials and server address saved.");
         loginModal.classList.add('hidden');
         
-        fetchVehicles(credentials); // Fetch data immediately after login
+        fetchVehicles(credentials);
     }
 });
 
