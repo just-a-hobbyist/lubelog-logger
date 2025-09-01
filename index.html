@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Link to the new local stylesheet -->
+    <!-- Link to the local stylesheet -->
     <link rel="stylesheet" href="style.css">
 
 </head>
@@ -51,7 +51,7 @@
                 <h1>LubeLogger</h1>
             </div>
             
-            <button id="menu-button">
+            <button id="menu-button" aria-label="Open menu">
                 <svg stroke="currentColor" fill="none" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
@@ -84,22 +84,29 @@
                 </a>
             </div>
         </main>
+
+        <!-- Login Modal (Hidden by default) -->
+        <div id="login-modal" class="hidden">
+            <div id="login-modal-content">
+                <h2>LubeLogger Login</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" id="login-button">Login</button>
+                </form>
+            </div>
+        </div>
+
     </div>
 
-    <script>
-        // Register the service worker for PWA functionality (offline access, etc.)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
-            });
-        }
-    </script>
+    <!-- Link to the new external JavaScript file -->
+    <script src="scripts.js" defer></script>
 </body>
 </html>
 
