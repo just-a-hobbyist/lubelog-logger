@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LubeLogger</title>
+    
+    <!-- Link to the Web App Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Google Fonts for a modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Link to the new local stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+    <div id="app">
+
+        <!-- Header Section -->
+        <header>
+            <div id="logo-container">
+                <!-- Inlining the SVG icon we designed -->
+                <svg width="40" height="40" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="512" height="512" fill="#2c3e50"/>
+                    <g transform="translate(64, 64) scale(1)">
+                        <g transform="translate(8, 8)" fill="#233140">
+                            <path d="M128 64H224C234.92 64 240.897 64 245.5 66.07C254.3 70.02 260.98 76.7 264.93 85.5C267 90.103 267 96.08 267 106.001V308H128V64Z"/>
+                            <path d="M267 192H316L348 224V256H292L267 228V192Z"/>
+                        </g>
+                        <g>
+                            <path d="M128 64H224C234.92 64 240.897 64 245.5 66.07C254.3 70.02 260.98 76.7 264.93 85.5C267 90.103 267 96.08 267 106.001V308H128V64Z" fill="#3498db"/>
+                            <rect x="144" y="128" width="108" height="64" rx="8" fill="#ecf0f1"/>
+                            <rect x="150" y="134" width="96" height="52" rx="4" fill="#2c3e50"/>
+                            <path d="M267 106C267 96.08 267 90.103 264.93 85.5C262.2 79.4 258.6 75.8 252.5 73.07C250.367 72.0673 247.587 71.302 243 70.5" stroke="#5dade2" stroke-width="8" stroke-linecap="round"/>
+                        </g>
+                        <g>
+                            <path d="M267 172C295.667 172 302.5 198 290 224" stroke="#7f8c8d" stroke-width="16" stroke-linecap="round"/>
+                        </g>
+                        <g>
+                            <path d="M267 192H316L348 224V256H292L267 228V192Z" fill="#95a5a6"/>
+                            <rect x="296" y="240" width="40" height="12" rx="6" fill="#bdc3c7"/>
+                            <path d="M267 192L316 192L310 198H267V192Z" fill="#bdc3c7"/>
+                        </g>
+                    </g>
+                </svg>
+                <h1>LubeLogger</h1>
+            </div>
+            
+            <button id="menu-button">
+                <svg stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Main Content Section -->
+        <main>
+            <h2>My Vehicles</h2>
+            
+            <div id="vehicle-list">
+                <!-- Example of a clickable vehicle section (placeholder) -->
+                <a href="#" class="vehicle-card">
+                    <div>
+                        <p class="vehicle-name">Ford F-150</p>
+                        <p class="vehicle-plate">BIGTRUK</p>
+                    </div>
+                    <svg class="chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+                <a href="#" class="vehicle-card">
+                    <div>
+                        <p class="vehicle-name">Honda Civic</p>
+                        <p class="vehicle-plate">ECO-MPG</p>
+                    </div>
+                     <svg class="chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Register the service worker for PWA functionality (offline access, etc.)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
+
