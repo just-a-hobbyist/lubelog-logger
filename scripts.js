@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 loginForm.addEventListener('submit', (event) => {
     event.preventDefault(); // Prevent the form from causing a page reload
     
+    const domain = event.target.domain.value; 
     const username = event.target.username.value;
     const password = event.target.password.value;
 
@@ -32,7 +33,7 @@ loginForm.addEventListener('submit', (event) => {
         // In a real application, you would first make an API call to verify these credentials.
         
         // For now, we will save them to localStorage and hide the modal.
-        const credentials = { username, password };
+        const credentials = { domain, username, password };
         localStorage.setItem('lubeLoggerCreds', JSON.stringify(credentials));
 
         console.log("Credentials saved.");
