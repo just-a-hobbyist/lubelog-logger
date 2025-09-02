@@ -2,64 +2,39 @@
 const loginModal = document.getElementById('login-modal');
 const loginForm = document.getElementById('login-form');
 const vehicleList = document.getElementById('vehicle-list');
+const refreshButton = document.getElementById('refresh-button'); // Get the refresh button
 
 /**
- * Renders the vehicle data into clickable cards in the UI.
- * @param {Array<object>} vehicles - An array of vehicle objects from the API.
+ * Creates the HTML for a single vehicle card.
+ * @param {object} vehicle - The vehicle data object from the API.
+ * @returns {string} - The HTML string for the vehicle card.
+ */
+function createVehicleCard(vehicle) {
+    const vehicleName = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+    const licensePlate = vehicle.licensePlate || 'No Plate';
+
+    return `
+        <li class="vehicle-card" data-vehicle-id="${vehicle.id}">
+            <h2>${vehicleName}</h2>
+            <p>${licensePlate}</p>
+        </li>
+    `;
+}
+
+/**
+ * Renders the list of vehicles into the DOM.
+ * @param {Array<object>} vehicles - An array of vehicle data objects.
  */
 function renderVehicles(vehicles) {
-    // Clear any existing content (like the placeholders or a "no vehicles" message)
-    vehicleList.innerHTML = '';
-
     if (!vehicles || vehicles.length === 0) {
-        vehicleList.innerHTML = '<p class="no-vehicles-message">No vehicles found.</p>';
+        vehicleList.innerHTML = '<p>No vehicles found.</p>';
         return;
     }
 
-    vehicles.forEach(vehicle => {
-        // 1. Create the main link element (the card)
-        const cardLink = document.createElement('a');
-        cardLink.href = '#'; // Placeholder link for future navigation
-        cardLink.className = 'vehicle-card';
-        cardLink.dataset.vehicleId = vehicle.id; // Store the vehicle ID on the element for later use
-
-        // 2. Create the container for the text
-        const textContainer = document.createElement('div');
-
-        // 3. Create and populate the vehicle name paragraph
-        const nameParagraph = document.createElement('p');
-        nameParagraph.className = 'vehicle-name';
-        nameParagraph.textContent = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
-
-        // 4. Create and populate the license plate paragraph
-        const plateParagraph = document.createElement('p');
-        plateParagraph.className = 'vehicle-plate';
-        plateParagraph.textContent = vehicle.licensePlate;
-
-        // 5. Create the chevron icon SVG (this is more robust than innerHTML)
-        const chevronIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        chevronIcon.setAttribute('class', 'chevron-icon');
-        chevronIcon.setAttribute('fill', 'none');
-        chevronIcon.setAttribute('viewBox', '0 0 24 24');
-        chevronIcon.setAttribute('stroke', 'currentColor');
-        const chevronPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        chevronPath.setAttribute('stroke-linecap', 'round');
-        chevronPath.setAttribute('stroke-linejoin', 'round');
-        chevronPath.setAttribute('stroke-width', '2');
-        chevronPath.setAttribute('d', 'M9 5l7 7-7 7');
-        chevronIcon.appendChild(chevronPath);
-
-        // 6. Assemble the card by appending the new elements
-        textContainer.appendChild(nameParagraph);
-        textContainer.appendChild(plateParagraph);
-        cardLink.appendChild(textContainer);
-        cardLink.appendChild(chevronIcon);
-
-        // 7. Append the fully assembled card to the vehicle list in the DOM
-        vehicleList.appendChild(cardLink);
-    });
+    // Use map and join for better performance than appending in a loop
+    const vehicleCardsHTML = vehicles.map(createVehicleCard).join('');
+    vehicleList.innerHTML = vehicleCardsHTML;
 }
-
 
 /**
  * Fetches the list of vehicles from the LubeLogger API.
@@ -71,9 +46,7 @@ function renderVehicles(vehicles) {
 async function fetchVehicles(credentials) {
     console.log("Attempting to fetch vehicles from:", credentials.domain);
 
-    // Base64 encode the username and password for Basic Authentication.
     const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
-    
     const headers = {
         'Authorization': `Basic ${encodedCredentials}`
     };
@@ -91,14 +64,15 @@ async function fetchVehicles(credentials) {
         const vehicles = await response.json();
         console.log("Successfully fetched vehicles:", vehicles);
         
-        // NEW: Call the render function with the fetched data
-        renderVehicles(vehicles);
+        // Save the fresh data to localStorage
         localStorage.setItem("vehicles", JSON.stringify(vehicles));
+        
+        // Render the new data
+        renderVehicles(vehicles);
 
     } catch (error) {
         console.error("Failed to fetch vehicles:", error);
-        alert(`Error fetching vehicles: ${error.message}. Please check your credentials and server address.`);
-        
+        alert(`Error fetching vehicles: ${error.message}. Please check credentials and server address.`);
         localStorage.removeItem('lubeLoggerCreds');
         loginModal.classList.remove('hidden');
     }
@@ -112,17 +86,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!savedCreds) {
         loginModal.classList.remove('hidden');
     } else {
-        console.log("Credentials found.");
+        const creds = JSON.parse(savedCreds);
         const vehiclesJSON = localStorage.getItem('vehicles');
+
         if (!vehiclesJSON) {
-            fetchVehicles(JSON.parse(savedCreds));
+            console.log("No cached vehicles found, fetching...");
+            fetchVehicles(creds);
         } else {
             try {
-                console.log("Vehicles found, rendering");
+                console.log("Cached vehicles found, rendering...");
                 renderVehicles(JSON.parse(vehiclesJSON));
             } catch (e) {
                 console.error("Failed to parse cached vehicle data. Refetching.", e);
-                fetchVehicles(creds); // Fallback to fetching from network
+                fetchVehicles(creds);
             }
         }
     }
@@ -145,10 +121,23 @@ loginForm.addEventListener('submit', (event) => {
         localStorage.setItem('lubeLoggerCreds', JSON.stringify(credentials));
         console.log("Credentials and server address saved.");
         loginModal.classList.add('hidden');
-        
         fetchVehicles(credentials);
     }
 });
+
+// --- NEW --- Add event listener for the refresh button
+refreshButton.addEventListener('click', () => {
+    console.log("Manual refresh triggered.");
+    const savedCreds = localStorage.getItem('lubeLoggerCreds');
+    if (savedCreds) {
+        const creds = JSON.parse(savedCreds);
+        fetchVehicles(creds);
+    }
+    // // Remove focus from the button to un-highlight it
+    // refreshButton.blur();
+    document.getElementById('app').focus();
+});
+
 
 // Register the service worker
 if ('serviceWorker' in navigator) {

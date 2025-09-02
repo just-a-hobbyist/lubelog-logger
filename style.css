@@ -68,10 +68,6 @@ body {
     transition: background-color 0.2s ease;
 }
 
-#header-buttons button:hover {
-    background-color: rgba(236, 240, 241, 0.1);
-}
-
 /* --- SVG Icon Fixes --- */
 #header-buttons button svg {
     width: 24px;  /* Explicitly set width */
@@ -110,10 +106,6 @@ main h2 {
     text-decoration: none;
     color: inherit;
     transition: background-color 200ms ease-in-out;
-}
-
-.vehicle-card:hover {
-    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .vehicle-name {
@@ -212,10 +204,6 @@ main h2 {
     transition: background-color 200ms ease-in-out;
 }
 
-#login-button:hover {
-    background-color: #2980b9;
-}
-
 /* --- Utility class to show/hide the modal --- 
   By combining the ID and the class, we create a more specific
   selector that can successfully override the 'display: flex'
@@ -223,4 +211,33 @@ main h2 {
 */
 #login-modal.hidden {
     display: none;
+}
+
+#header-buttons button,
+.vehicle-card,
+#login-button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 2. Provide an instant "tap" feedback effect for ALL devices.
+   This flash happens during the press and disappears immediately. */
+#header-buttons button:active,
+.vehicle-card:active,
+#login-button:active {
+    background-color: rgba(255, 255, 255, 0.15); /* A slightly brighter, instant flash */
+    transition-duration: 0s; /* Makes the feedback feel instant */
+}
+
+/* 3. Isolate all hover effects to devices that can actually hover (like a mouse).
+   This prevents the "sticky hover" state on mobile. */
+@media (hover: hover) and (pointer: fine){
+    #header-buttons button:hover {
+        background-color: rgba(236, 240, 241, 0.1);
+    }
+    .vehicle-card:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    #login-button:hover {
+        background-color: #2980b9;
+    }
 }
