@@ -28,7 +28,7 @@ body {
 #header {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* This is the key fix for vertical alignment */
+    align-items: center;
     padding: 1rem;
     background-color: #34495e;
     border-bottom: 1px solid #2c3e50;
@@ -52,7 +52,7 @@ body {
 
 #header-buttons {
     display: flex;
-    align-items: center; /* Vertically aligns the buttons with each other */
+    align-items: center;
     gap: 0.5rem;
 }
 
@@ -68,11 +68,10 @@ body {
     transition: background-color 0.2s ease;
 }
 
-/* --- SVG Icon Fixes --- */
 #header-buttons button svg {
-    width: 24px;  /* Explicitly set width */
-    height: 24px; /* Explicitly set height */
-    stroke: #ecf0f1; /* Set the icon color */
+    width: 24px;
+    height: 24px;
+    stroke: #ecf0f1;
 }
 
 /* --- Main Content --- */
@@ -93,36 +92,94 @@ main h2 {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    list-style: none; /* Remove bullet points */
 }
 
 .vehicle-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    color: inherit;
+    transition: background-color 200ms ease-in-out;
+    overflow: hidden; /* Important for the animation */
+}
+
+.card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    text-decoration: none;
-    color: inherit;
-    transition: background-color 200ms ease-in-out;
+    cursor: pointer;
 }
 
-.vehicle-name {
+.card-header h2 {
     font-size: 1.125rem;
     font-weight: 700;
     color: #ffffff;
 }
 
-.vehicle-plate {
+.card-header p {
     font-size: 0.875rem;
     color: #9ca3af;
+    text-transform: uppercase;
 }
 
 .chevron-icon {
     width: 1.5rem;
     height: 1.5rem;
     color: #9ca3af;
+    transition: transform 0.35s ease-out;
+}
+
+.vehicle-card.expanded .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.card-details {
+    padding: 0 1rem; /* No vertical padding when collapsed */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease-out, padding 0.35s ease-out;
+}
+
+.vehicle-card.expanded .card-details {
+    max-height: 10rem; /* A value larger than the content will be */
+    padding-bottom: 1rem;
+}
+
+.odometer-info {
+    padding: 1rem 0;
+    border-top: 1px solid #4a6572;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    color: #d1d5db;
+}
+
+.odometer-info strong {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.action-btn {
+    flex-grow: 1;
+    background-color: #4a6572;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    color: #ecf0f1;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 /* --- Login Modal Styles --- */
@@ -139,6 +196,10 @@ main h2 {
     z-index: 1000;
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
+}
+
+#login-modal.hidden {
+    display: none;
 }
 
 #login-modal-content {
@@ -204,40 +265,34 @@ main h2 {
     transition: background-color 200ms ease-in-out;
 }
 
-/* --- Utility class to show/hide the modal --- 
-  By combining the ID and the class, we create a more specific
-  selector that can successfully override the 'display: flex'
-  from the #login-modal rule.
-*/
-#login-modal.hidden {
-    display: none;
-}
-
+/* --- Interaction State Fixes --- */
 #header-buttons button,
 .vehicle-card,
-#login-button {
+#login-button,
+.action-btn {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* 2. Provide an instant "tap" feedback effect for ALL devices.
-   This flash happens during the press and disappears immediately. */
 #header-buttons button:active,
-.vehicle-card:active,
-#login-button:active {
-    background-color: rgba(255, 255, 255, 0.15); /* A slightly brighter, instant flash */
-    transition-duration: 0s; /* Makes the feedback feel instant */
+.card-header:active,
+#login-button:active,
+.action-btn:active {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    transition-duration: 0s !important;
 }
 
-/* 3. Isolate all hover effects to devices that can actually hover (like a mouse).
-   This prevents the "sticky hover" state on mobile. */
-@media (hover: hover) and (pointer: fine){
+@media (hover: hover) and (pointer: fine) {
     #header-buttons button:hover {
         background-color: rgba(236, 240, 241, 0.1);
     }
-    .vehicle-card:hover {
+    .card-header:hover {
         background-color: rgba(255, 255, 255, 0.1);
     }
     #login-button:hover {
         background-color: #2980b9;
     }
+    .action-btn:hover {
+        background-color: #5f7a87;
+    }
 }
+

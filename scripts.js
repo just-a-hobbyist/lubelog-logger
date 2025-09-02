@@ -5,21 +5,41 @@ const vehicleList = document.getElementById('vehicle-list');
 const refreshButton = document.getElementById('refresh-button'); // Get the refresh button
 
 /**
- * Creates the HTML for a single vehicle card.
+ * Creates the HTML for a single, expandable vehicle card.
  * @param {object} vehicle - The vehicle data object from the API.
  * @returns {string} - The HTML string for the vehicle card.
  */
 function createVehicleCard(vehicle) {
-    const vehicleName = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
-    const licensePlate = vehicle.licensePlate || 'No Plate';
+    const vehicleName = `${vehicle.vehicleData.year} ${vehicle.vehicleData.make} ${vehicle.vehicleData.model}`;
+    const licensePlate = vehicle.vehicleData.licensePlate || 'No Plate';
+    // Use optional chaining to safely get the odometer reading.
+    const latestOdometer = vehicle.lastReportedOdometer?.toString() || 'N/A';
 
     return `
-        <li class="vehicle-card" data-vehicle-id="${vehicle.id}">
-            <h2>${vehicleName}</h2>
-            <p>${licensePlate}</p>
+        <li class="vehicle-card" data-vehicle-id="${vehicle.vehicleData.id}">
+            <div class="card-header">
+                <div>
+                    <h2>${vehicleName}</h2>
+                    <p>${licensePlate}</p>
+                </div>
+                <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+            </div>
+            <div class="card-details">
+                <div class="odometer-info">
+                    <span>Last Reported Odometer</span>
+                    <strong>${latestOdometer}</strong>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn" data-action="fuel">New Fuel Record</button>
+                    <button class="action-btn" data-action="odometer">New Odometer Record</button>
+                </div>
+            </div>
         </li>
     `;
 }
+
 
 /**
  * Renders the list of vehicles into the DOM.
@@ -31,7 +51,6 @@ function renderVehicles(vehicles) {
         return;
     }
 
-    // Use map and join for better performance than appending in a loop
     const vehicleCardsHTML = vehicles.map(createVehicleCard).join('');
     vehicleList.innerHTML = vehicleCardsHTML;
 }
@@ -39,9 +58,6 @@ function renderVehicles(vehicles) {
 /**
  * Fetches the list of vehicles from the LubeLogger API.
  * @param {object} credentials - The user's credentials object.
- * @param {string} credentials.domain - The server address (e.g., http://127.0.0.1:5000).
- * @param {string} credentials.username - The user's username.
- * @param {string} credentials.password - The user's password.
  */
 async function fetchVehicles(credentials) {
     console.log("Attempting to fetch vehicles from:", credentials.domain);
@@ -52,7 +68,7 @@ async function fetchVehicles(credentials) {
     };
 
     try {
-        const response = await fetch(`${credentials.domain}/api/vehicles`, {
+        const response = await fetch(`${credentials.domain}/api/vehicle/info`, {
             method: 'GET',
             headers: headers
         });
@@ -64,10 +80,7 @@ async function fetchVehicles(credentials) {
         const vehicles = await response.json();
         console.log("Successfully fetched vehicles:", vehicles);
         
-        // Save the fresh data to localStorage
         localStorage.setItem("vehicles", JSON.stringify(vehicles));
-        
-        // Render the new data
         renderVehicles(vehicles);
 
     } catch (error) {
@@ -125,7 +138,6 @@ loginForm.addEventListener('submit', (event) => {
     }
 });
 
-// --- NEW --- Add event listener for the refresh button
 refreshButton.addEventListener('click', () => {
     console.log("Manual refresh triggered.");
     const savedCreds = localStorage.getItem('lubeLoggerCreds');
@@ -133,9 +145,43 @@ refreshButton.addEventListener('click', () => {
         const creds = JSON.parse(savedCreds);
         fetchVehicles(creds);
     }
-    // // Remove focus from the button to un-highlight it
-    // refreshButton.blur();
-    document.getElementById('app').focus();
+});
+
+// Event listener for all interactions within the vehicle list
+vehicleList.addEventListener('click', (event) => {
+    // Case 1: An action button inside the details was clicked
+    const actionButton = event.target.closest('.action-btn');
+    if (actionButton) {
+        event.stopPropagation(); 
+        
+        const action = actionButton.dataset.action;
+        const card = actionButton.closest('.vehicle-card');
+        const vehicleId = card.dataset.vehicleId;
+
+        console.log(`Action '${action}' triggered for vehicle ID: ${vehicleId}`);
+        // TODO: Add logic here to navigate to the new page for this action
+        console.log('stuff will go here');// Placeholder
+        return; // We've handled the click, so we're done.
+    }
+
+    // Case 2: The card header was clicked to expand/collapse
+    const clickedHeader = event.target.closest('.card-header');
+    if (clickedHeader) {
+        const card = clickedHeader.closest('.vehicle-card');
+        if (!card) return;
+
+        const isAlreadyExpanded = card.classList.contains('expanded');
+
+        // Close any other card that might be open
+        document.querySelectorAll('.vehicle-card.expanded').forEach(openCard => {
+            openCard.classList.remove('expanded');
+        });
+
+        // If the card we clicked wasn't already open, expand it.
+        if (!isAlreadyExpanded) {
+            card.classList.add('expanded');
+        }
+    }
 });
 
 
@@ -151,4 +197,3 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
-
