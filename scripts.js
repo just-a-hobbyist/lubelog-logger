@@ -4,6 +4,41 @@ const loginForm = document.getElementById('login-form');
 const vehicleList = document.getElementById('vehicle-list');
 const refreshButton = document.getElementById('refresh-button'); // Get the refresh button
 
+// Views
+const vehicleListView = document.getElementById('view-vehicle-list');
+const addFuelView = document.getElementById('view-add-fuel');
+const fuelForm = document.getElementById('add-fuel-form');
+const fuelFormTitle = document.getElementById('fuel-form-title');
+const backFromFuel = document.getElementById('back-from-fuel');
+const backFromOdo = document.getElementById('back-from-odo');
+
+
+
+// App State
+let vehiclesCache = []; // In-memory cache for vehicle data
+
+/**
+ * Manages which view is currently visible.
+ * @param {string} viewName - The id of the view to show.
+ * @param {object} [data] - Optional data for the view.
+ */
+function showView(viewId, data) {
+    document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+    
+    const viewToShow = document.getElementById(viewId);
+    if (viewToShow) {
+        viewToShow.classList.add('active');
+    }
+
+    if (viewId === 'view-add-fuel') {
+        const vehicle = vehiclesCache.find(v => v.vehicleData.id === data.vehicleId);
+        if (vehicle) {
+            fuelFormTitle.textContent = `Add Fuel for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
+            fuelForm.dataset.vehicleId = data.vehicleId;
+        }
+    }
+}
+
 /**
  * Creates the HTML for a single, expandable vehicle card.
  * @param {object} vehicle - The vehicle data object from the API.
@@ -32,8 +67,8 @@ function createVehicleCard(vehicle) {
                     <strong>${latestOdometer}</strong>
                 </div>
                 <div class="action-buttons">
-                    <button class="action-btn" data-action="fuel">New Fuel Record</button>
-                    <button class="action-btn" data-action="odometer">New Odometer Record</button>
+                    <button class="action-btn" data-action="view-add-fuel">New Fuel Record</button>
+                    <button class="action-btn" data-action="view-add-odometer">New Odometer Record</button>
                 </div>
             </div>
         </li>
@@ -115,6 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+    document.getElementById('fuel-date').valueAsDate = new Date();
+    document.getElementById('odo-date').valueAsDate = new Date();
 });
 
 // --- Event Listeners ---
@@ -147,6 +184,13 @@ refreshButton.addEventListener('click', () => {
     }
 });
 
+backFromFuel.addEventListener('click', () => {
+    showView('view-vehicle-list');
+});
+backFromOdo.addEventListener('click', () => {
+    showView('view-vehicle-list');
+});
+
 // Event listener for all interactions within the vehicle list
 vehicleList.addEventListener('click', (event) => {
     // Case 1: An action button inside the details was clicked
@@ -160,7 +204,7 @@ vehicleList.addEventListener('click', (event) => {
 
         console.log(`Action '${action}' triggered for vehicle ID: ${vehicleId}`);
         // TODO: Add logic here to navigate to the new page for this action
-        console.log('stuff will go here');// Placeholder
+        showView(action, )
         return; // We've handled the click, so we're done.
     }
 
