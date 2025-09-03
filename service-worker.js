@@ -1,5 +1,5 @@
 // A name for our cache
-const CACHE_NAME = 'lubelogger-pwa-cache-v1';
+const CACHE_NAME = 'lubelogger-pwa-cache-v1.0.1';
 
 // A list of all the essential files our app needs to run offline
 const urlsToCache = [
