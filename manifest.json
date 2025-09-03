@@ -3,8 +3,8 @@
   "short_name": "LubeLogger",
   "description": "A simple app to quickly add fuel and odometer records to a self-hosted LubeLogger instance.",
   "lang": "en-US",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": ".",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#2c3e50",
@@ -57,14 +57,14 @@
       "name": "Add Fuel Record",
       "short_name": "Fuel Up",
       "description": "Log a new fuel entry.",
-      "url": "/add-fuel",
+      "url": "./index.html",
       "icons": [{ "src": "/icons/shortcut-fuel.png", "sizes": "96x96" }]
     },
     {
       "name": "Add Odometer Reading",
       "short_name": "Odometer",
       "description": "Log a new odometer reading.",
-      "url": "/add-odometer",
+      "url": "./index.html",
       "icons": [{ "src": "/icons/shortcut-odometer.png", "sizes": "96x96" }]
     }
   ]

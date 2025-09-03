@@ -3,13 +3,13 @@ const CACHE_NAME = 'lubelogger-pwa-cache-v1';
 
 // A list of all the essential files our app needs to run offline
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/style.css',
-    '/script.js',
-    '/manifest.json',
-    '/icons/icon-192.png', // Example icon, add all your icon sizes
-    '/icons/icon-512.png'
+    './',
+    './index.html',
+    './style.css',
+    './scripts.js',
+    './manifest.json',
+    './icons/icon-192.png', // Example icon, add all your icon sizes
+    './icons/icon-512.png'
 ];
 
 // --- Event Listeners ---
