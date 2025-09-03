@@ -424,6 +424,11 @@ input:checked + .slider:before {
     background-color: #c0392b; /* Error color */
 }
 
+.touch-active {
+    background-color: rgba(236, 240, 241, 0.2) !important;
+    transition-duration: 0s !important;
+}
+
 /* --- Interaction State Fixes --- */
 #header-buttons button,
 .vehicle-card,

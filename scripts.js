@@ -4,6 +4,7 @@ const loginForm = document.getElementById('login-form');
 const vehicleList = document.getElementById('vehicle-list');
 const refreshButton = document.getElementById('refresh-button'); // Get the refresh button
 const toast = document.getElementById('toast-notification');
+const touchFeedbackElements = document.querySelectorAll('[data-touch-feedback]');
 
 // Views
 const vehicleListView = document.getElementById('view-vehicle-list');
@@ -172,14 +173,17 @@ function showToast(message, type = 'success') {
 async function addRecord(vehicleId, record, type) {
     let formType;
     let dateBox;
+    let successMsg = " saved successfully!";
     switch (type) {
         case 'gas':
             formType = fuelForm;
             dateBox = document.getElementById('fuel-date');
+            successMsg = "Gas" + successMsg;
             break;
         case 'odometer':
             formType = odometerForm;
             dateBox = document.getElementById('odometer-date');
+            successMsg = "Odometer" + successMsg;
             break;
         default:
             console.error('Unknown record type');
@@ -221,8 +225,8 @@ async function addRecord(vehicleId, record, type) {
         }
 
         const result = await response.json();
-        console.log("Successfully added gas record:", result);
-        showToast("Gas record saved successfully!");
+        console.log("Successfully added record:", result);
+        showToast(successMsg);
         submitButton.textContent = "Refreshing Home Page";
         await fetchVehicles(credentials);
         showView('view-vehicle-list');
@@ -261,6 +265,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+    touchFeedbackElements.forEach(el => {
+        const onTouchStart = () => el.classList.add('touch-active');
+        const onTouchEnd = () => el.classList.remove('touch-active');
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchend', onTouchEnd);
+        el.addEventListener('touchcancel', onTouchEnd);
+
+    })
     document.getElementById('fuel-date').valueAsDate = new Date();
     document.getElementById('odometer-date').valueAsDate = new Date();
 });
@@ -291,7 +303,10 @@ refreshButton.addEventListener('click', () => {
     const savedCreds = localStorage.getItem('lubeLoggerCreds');
     if (savedCreds) {
         const creds = JSON.parse(savedCreds);
+        showToast("Refreshing Vehicle List...");
         fetchVehicles(creds);
+    } else {
+        showToast("Unable to refresh, try logging in again", 'error');
     }
 });
 
