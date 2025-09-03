@@ -4,7 +4,7 @@ const loginForm = document.getElementById('login-form');
 const vehicleList = document.getElementById('vehicle-list');
 const refreshButton = document.getElementById('refresh-button'); // Get the refresh button
 const toast = document.getElementById('toast-notification');
-const touchFeedbackElements = document.querySelectorAll('[data-touch-feedback]');
+const domainField = document.getElementById('domain');
 
 // Views
 const vehicleListView = document.getElementById('view-vehicle-list');
@@ -245,7 +245,8 @@ async function addRecord(vehicleId, record, type) {
 // --- Core App Logic ---
 document.addEventListener('DOMContentLoaded', () => {
     const savedCreds = localStorage.getItem('lubeLoggerCreds');
-
+    const lastDomain = localStorage.getItem('lastDomain');
+    if (lastDomain) domainField.value = lastDomain;
     if (!savedCreds) {
         loginModal.classList.remove('hidden');
     } else {
@@ -265,14 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    touchFeedbackElements.forEach(el => {
-        const onTouchStart = () => el.classList.add('touch-active');
-        const onTouchEnd = () => el.classList.remove('touch-active');
-        el.addEventListener('touchstart', onTouchStart, { passive: true });
-        el.addEventListener('touchend', onTouchEnd);
-        el.addEventListener('touchcancel', onTouchEnd);
-
-    })
     document.getElementById('fuel-date').valueAsDate = new Date();
     document.getElementById('odometer-date').valueAsDate = new Date();
 });
@@ -291,6 +284,7 @@ loginForm.addEventListener('submit', (event) => {
 
     if (domain && username && password) {
         const credentials = { domain, username, password };
+        localStorage.setItem('lastDomain', domain);
         localStorage.setItem('lubeLoggerCreds', JSON.stringify(credentials));
         console.log("Credentials and server address saved.");
         loginModal.classList.add('hidden');
@@ -308,6 +302,7 @@ refreshButton.addEventListener('click', () => {
         fetchVehicles(creds);
     } else {
         showToast("Unable to refresh, try logging in again", 'error');
+        loginModal.classList.remove('hidden');
     }
 });
 
@@ -385,7 +380,7 @@ odometerForm.addEventListener('submit', (event) => {
 // Register the service worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
+        navigator.serviceWorker.register('./service-worker.js')
             .then(registration => {
                 console.log('ServiceWorker registration successful with scope: ', registration.scope);
             })

@@ -64,7 +64,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.3s ease-out;
 }
 
 #header-buttons button svg {
@@ -120,6 +120,8 @@ main h2 {
     align-items: center;
     padding: 1rem;
     cursor: pointer;
+    transition: background-color 0.3s ease-out; 
+
 }
 
 .card-header h2 {
@@ -189,7 +191,7 @@ main h2 {
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.3s ease;
 }
 
 /* --- New Record Form Styles --- */
@@ -424,11 +426,6 @@ input:checked + .slider:before {
     background-color: #c0392b; /* Error color */
 }
 
-.touch-active {
-    background-color: rgba(255, 255, 255, 0.438) !important;
-    transition-duration: 0.5s !important;
-}
-
 /* --- Interaction State Fixes --- */
 #header-buttons button,
 .vehicle-card,
@@ -437,11 +434,12 @@ input:checked + .slider:before {
     -webkit-tap-highlight-color: transparent;
 }
 
+/* --- These are the background color of buttons when they're being pushed --- */
 #header-buttons button:active,
 .card-header:active,
 #login-button:active,
 .action-btn:active {
-    background-color: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.35) !important;
     transition-duration: 0s !important;
 }
 
