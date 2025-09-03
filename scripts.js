@@ -304,6 +304,7 @@ refreshButton.addEventListener('click', () => {
     if (savedCreds) {
         const creds = JSON.parse(savedCreds);
         showToast("Refreshing Vehicle List...");
+        vehicleList.innerHTML = "";
         fetchVehicles(creds);
     } else {
         showToast("Unable to refresh, try logging in again", 'error');
