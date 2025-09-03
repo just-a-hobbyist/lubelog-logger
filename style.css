@@ -40,9 +40,8 @@ body {
     gap: 0.75rem;
 }
 
-#logo-svg {
-    width: 32px;
-    height: 32px;
+#logo-img {
+    height: 3em;
 }
 
 #header h1 {

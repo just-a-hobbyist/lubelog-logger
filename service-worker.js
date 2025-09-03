@@ -8,8 +8,18 @@ const urlsToCache = [
     './style.css',
     './scripts.js',
     './manifest.json',
-    './icons/icon-192.png', // Example icon, add all your icon sizes
-    './icons/icon-512.png'
+    './icons/icon-192x192.png', // Example icon, add all your icon sizes
+    './icons/icon-512x512.png',
+    './icons/icon-1024x1024.png',
+    './icons/icon-32x32.png',
+    './icons/icon-maskable-512x512.png',
+    './icons/android-chrome-192x192.png',
+    './icons/android-chrome-512x512.png',
+    './icons/favicon-16x16.png',
+    './icons/favicon-32x32.png',
+    './icons/favicon.ico',
+    './icons/add-fuel.svg',
+    './icons/add-odo.svg',
 ];
 
 // --- Event Listeners ---
