@@ -438,7 +438,8 @@ input:checked + .slider:before {
 #header-buttons button:active,
 .card-header:active,
 #login-button:active,
-.action-btn:active {
+.action-btn:active,
+.back-button:active {
     background: rgba(255, 255, 255, 0.35) !important;
     transition-duration: 0s !important;
 }

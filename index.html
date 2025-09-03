@@ -25,11 +25,11 @@
             </div>
             <div id="header-buttons">
                 <!-- Refresh Button -->
-                <button id="refresh-button" aria-label="Refresh vehicles" data-touch-feedback="">
+                <button id="refresh-button" aria-label="Refresh vehicles" data-touch-feedback>
                     <svg fill="#FFFFFF" height="200px" width="200px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.002 512.002" xml:space="preserve" style="--darkreader-inline-fill: var(--darkreader-background-ffffff, #181a1b); --darkreader-inline-stroke: var(--darkreader-text-ffffff, #e8e6e3);" stroke="#FFFFFF" data-darkreader-inline-fill="" data-darkreader-inline-stroke=""><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M436.866,436.871c48.312-48.311,74.921-112.546,74.921-180.871c0-141.039-114.744-255.785-255.783-255.786v49.507 c113.741,0.002,206.276,92.539,206.276,206.279c0,55.101-21.458,106.902-60.42,145.864l-7.571,7.571l-67.552-67.552l0.021,170.076 l170.096,0.041l-67.559-67.559L436.866,436.871z"></path> </g> </g> <g> <g> <path d="M49.724,256.001c0-55.101,21.458-106.902,60.42-145.864l7.571-7.571l67.552,67.552L185.245,0.041L15.148,0l67.559,67.559 l-7.571,7.57C26.824,123.439,0.215,187.674,0.215,255.999c0,141.039,114.744,255.785,255.783,255.786v-49.507 C142.258,462.278,49.724,369.742,49.724,256.001z"></path> </g> </g> </g></svg>
                 </button>
                 <!-- Menu Button -->
-                <button id="menu-button" aria-label="Open menu" data-touch-feedback="">
+                <button id="menu-button" aria-label="Open menu" data-touch-feedback>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
@@ -50,7 +50,7 @@
             <!-- View 2: Add Fuel Record Form (Hidden by Default) -->
             <div id="view-add-fuel" class="view">
                 <!-- Back button specific to this view -->
-                <button id="back-from-fuel" class="back-button">
+                <button id="back-from-fuel" class="back-button" data-touch-feedback>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
@@ -60,44 +60,44 @@
                 <form id="add-fuel-form" class="record-form">
                     <div class="form-group">
                         <label for="fuel-date">Date</label>
-                        <input type="date" id="fuel-date" name="date" required>
+                        <input type="date" id="fuel-date" name="date" data-touch-feedback required>
                     </div>
                     <div class="form-group">
                         <label for="fuel-odometer">Odometer</label>
-                        <input type="number" id="fuel-odometer" name="odometer" inputmode="numeric" required>
+                        <input type="number" id="fuel-odometer" name="odometer" inputmode="numeric" data-touch-feedback required>
                     </div>
                     <div class="form-group">
                         <label for="fuel-gallons">Fuel Consumed (Gallons/Liters)</label>
-                        <input type="number" id="fuel-gallons" name="fuelConsumed" step="0.001" inputmode="decimal" required>
+                        <input type="number" id="fuel-gallons" name="fuelConsumed" step="0.001" inputmode="decimal" data-touch-feedback required>
                     </div>
                     <div class="form-group">
                         <label for="fuel-cost">Total Cost</label>
-                        <input type="number" id="fuel-cost" name="cost" step="0.01" inputmode="decimal" required>
+                        <input type="number" id="fuel-cost" name="cost" step="0.01" inputmode="decimal" data-touch-feedback required>
                     </div>
                                         <!-- New Toggle Switches -->
                     <div class="form-group-row">
                         <div class="toggle-group">
                             <label for="fuel-is-full">Fill to Full</label>
                             <label class="toggle-switch">
-                                <input type="checkbox" id="fuel-is-full" name="isFillToFull" checked>
+                                <input type="checkbox" id="fuel-is-full" name="isFillToFull" data-touch-feedback checked>
                                 <span class="slider"></span>
                             </label>
                         </div>
                         <div class="toggle-group">
                             <label for="fuel-missed">Missed Fuel-up</label>
                             <label class="toggle-switch">
-                                <input type="checkbox" id="fuel-missed" name="missedFuelUp">
+                                <input type="checkbox" id="fuel-missed" name="missedFuelUp" data-touch-feedback>
                                 <span class="slider"></span>
                             </label>
                         </div>
                     </div>
-                    <button type="submit" class="form-btn save-btn">Save Record</button>
+                    <button type="submit" class="form-btn save-btn" data-touch-feedback>Save Record</button>
                 </form>
             </div>
             
             <div id="view-add-odometer" class="view">
                 <!-- Back button specific to this view -->
-                <button id="back-from-odometer" class="back-button">
+                <button id="back-from-odometer" class="back-button" data-touch-feedback>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
@@ -107,13 +107,13 @@
                 <form id="add-odometer-form" class="record-form">
                     <div class="form-group">
                         <label for="odometer-date">Date</label>
-                        <input type="date" id="odometer-date" name="date" required>
+                        <input type="date" id="odometer-date" name="date" data-touch-feedback required>
                     </div>
                     <div class="form-group">
                         <label for="odometer-odometer">Odometer</label>
-                        <input type="number" id="odometer-odometer" name="odometer" inputmode="numeric" required>
+                        <input type="number" id="odometer-odometer" name="odometer" inputmode="numeric" data-touch-feedback required>
                     </div>                    
-                    <button type="submit" class="form-btn save-btn">Save Record</button>
+                    <button type="submit" class="form-btn save-btn"data-touch-feedback >Save Record</button>
                 </form>
             </div>
         </main>
@@ -125,18 +125,18 @@
                 <form id="login-form">
                     <div class="form-group">
                         <label for="domain">Server IP/Domain</label>
-                        <input type="text" id="domain" name="domain" placeholder="e.g., http://127.0.0.1:5000" required>
+                        <input type="text" id="domain" name="domain" placeholder="e.g., http://127.0.0.1:5000" data-touch-feedback required>
                     </div>
                     
                     <div class="form-group">
                         <label for="username">Username</label>
-                        <input type="text" id="username" name="username" autocomplete="username">
+                        <input type="text" id="username" name="username" autocomplete="username"data-touch-feedback >
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required>
+                        <input type="password" id="password" name="password" data-touch-feedback required>
                     </div>
-                    <button type="submit" id="login-button">Login</button>
+                    <button type="submit" id="login-button" data-touch-feedback>Login</button>
                 </form>
             </div>
         </div>

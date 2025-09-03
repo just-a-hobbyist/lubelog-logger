@@ -62,7 +62,7 @@ function createVehicleCard(vehicle) {
     const latestOdometer = vehicle.lastReportedOdometer?.toString() || 'N/A';
 
     return `
-        <li class="vehicle-card" data-vehicle-id="${vehicle.vehicleData.id}">
+        <li class="vehicle-card" data-vehicle-id="${vehicle.vehicleData.id}" data-touch-feedback>
             <div class="card-header">
                 <div>
                     <h2>${vehicleName}</h2>
@@ -78,8 +78,8 @@ function createVehicleCard(vehicle) {
                     <strong>${latestOdometer}</strong>
                 </div>
                 <div class="action-buttons">
-                    <button class="action-btn" data-action="view-add-fuel">New Fuel Record</button>
-                    <button class="action-btn" data-action="view-add-odometer">New Odometer Record</button>
+                    <button class="action-btn" data-action="view-add-fuel" data-touch-feedback>New Fuel Record</button>
+                    <button class="action-btn" data-action="view-add-odometer" data-touch-feedback>New Odometer Record</button>
                 </div>
             </div>
         </li>
@@ -266,6 +266,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+    // --- Touch Tolerance & Feedback Handler ---
+    // Allows a certain amount of movement on touch and still count as a tap rather than a drag
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const tolerance = 10; // Allow 10px of movement and still count as a tap
+
+    document.body.addEventListener('touchstart', (e) => {
+        const targetElement = e.target.closest('[data-touch-feedback]');
+        if (!targetElement) return;
+
+        // targetElement.classList.add('touch-active');
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+    }, { passive: true });
+
+    document.body.addEventListener('touchend', (e) => {
+        const targetElement = e.target.closest('[data-touch-feedback]');
+        if (!targetElement) return;
+
+        if (e.changedTouches.length === 1) {
+            const touch = e.changedTouches[0];
+            const deltaX = Math.abs(touch.clientX - touchStartX);
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+            console.log("registered touch movement of:", deltaX, deltaY);
+            if (deltaX < tolerance && deltaY < tolerance) {
+                console.log("clicked", targetElement);
+                targetElement.click();
+            }
+        }
+    });
+
     document.getElementById('fuel-date').valueAsDate = new Date();
     document.getElementById('odometer-date').valueAsDate = new Date();
 });
