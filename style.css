@@ -425,8 +425,8 @@ input:checked + .slider:before {
 }
 
 .touch-active {
-    background-color: rgba(236, 240, 241, 0.2) !important;
-    transition-duration: 0s !important;
+    background-color: rgba(255, 255, 255, 0.438) !important;
+    transition-duration: 0.5s !important;
 }
 
 /* --- Interaction State Fixes --- */
