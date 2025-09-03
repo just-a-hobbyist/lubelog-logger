@@ -3,28 +3,32 @@ const loginModal = document.getElementById('login-modal');
 const loginForm = document.getElementById('login-form');
 const vehicleList = document.getElementById('vehicle-list');
 const refreshButton = document.getElementById('refresh-button'); // Get the refresh button
+const toast = document.getElementById('toast-notification');
 
 // Views
 const vehicleListView = document.getElementById('view-vehicle-list');
 const addFuelView = document.getElementById('view-add-fuel');
+const addOdometerView = document.getElementById('view-add-odometer');
 const fuelForm = document.getElementById('add-fuel-form');
+const odometerForm = document.getElementById('add-odometer-form');
 const fuelFormTitle = document.getElementById('fuel-form-title');
+const odometerFormTitle = document.getElementById('odometer-form-title');
 const backFromFuel = document.getElementById('back-from-fuel');
-const backFromOdo = document.getElementById('back-from-odo');
+const backFromOdometer = document.getElementById('back-from-odometer');
 
 
 
 // App State
 let vehiclesCache = []; // In-memory cache for vehicle data
+let toastTimeout; // To manage toast timer
 
 /**
  * Manages which view is currently visible.
- * @param {string} viewName - The id of the view to show.
+ * @param {string} viewId - The id of the view to show.
  * @param {object} [data] - Optional data for the view.
  */
 function showView(viewId, data) {
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-    
     const viewToShow = document.getElementById(viewId);
     if (viewToShow) {
         viewToShow.classList.add('active');
@@ -35,6 +39,12 @@ function showView(viewId, data) {
         if (vehicle) {
             fuelFormTitle.textContent = `Add Fuel for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
             fuelForm.dataset.vehicleId = data.vehicleId;
+        }
+    } else if (viewId === 'view-add-odometer') {
+        const vehicle = vehiclesCache.find(v => v.vehicleData.id === data.vehicleId);
+        if (vehicle) {
+            odometerFormTitle.textContent = `Add Odometer for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
+            odometerForm.dataset.vehicleId = data.vehicleId;
         }
     }
 }
@@ -81,6 +91,7 @@ function createVehicleCard(vehicle) {
  * @param {Array<object>} vehicles - An array of vehicle data objects.
  */
 function renderVehicles(vehicles) {
+    vehiclesCache = vehicles;
     if (!vehicles || vehicles.length === 0) {
         vehicleList.innerHTML = '<p>No vehicles found.</p>';
         return;
@@ -126,6 +137,106 @@ async function fetchVehicles(credentials) {
     }
 }
 
+/**
+ * Displays a toast notification.
+ * @param {string} message - The message to display.
+ * @param {string} [type='success'] - The type of toast ('success' or 'error').
+ */
+function showToast(message, type = 'success') {
+    // Clear any existing timer to prevent the toast from disappearing early
+    if (toastTimeout) {
+        clearTimeout(toastTimeout);
+    }
+
+    toast.textContent = message;
+
+    // Apply the correct style
+    toast.className = 'toast'; // Reset classes
+    toast.classList.add(type); // Add 'success' or 'error'
+
+    // Make it visible
+    toast.classList.add('active');
+
+    // Set a timer to hide it after 3 seconds
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove('active');
+    }, 3000);
+}
+
+/**
+ * Submits a new record to the LubeLogger API.
+ * @param {number} vehicleId - The ID of the vehicle.
+ * @param {object} record - The gas record data.
+ * @param {string} type - The type ['gas' or 'odometer'] of record to submit
+ */
+async function addRecord(vehicleId, record, type) {
+    let formType;
+    let dateBox;
+    switch (type) {
+        case 'gas':
+            formType = fuelForm;
+            dateBox = document.getElementById('fuel-date');
+            break;
+        case 'odometer':
+            formType = odometerForm;
+            dateBox = document.getElementById('odometer-date');
+            break;
+        default:
+            console.error('Unknown record type');
+            return;
+    }
+    const submitButton = formType.querySelector('.save-btn');
+    const originalButtonText = submitButton.textContent;
+
+    // Disable button and show loading state
+    submitButton.disabled = true;
+    submitButton.textContent = 'Saving...';
+
+    try {
+        const savedCreds = localStorage.getItem('lubeLoggerCreds');
+        if (!savedCreds) {
+            alert("Credentials not found. Please log in again.");
+            return;
+        }
+        const credentials = JSON.parse(savedCreds);
+        const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
+
+        const formData = new URLSearchParams();
+        for (const key in record) {
+            formData.append(key, record[key]);
+        }
+
+        const response = await fetch(`${credentials.domain}/api/vehicle/${type}records/add?vehicleId=${vehicleId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Basic ${encodedCredentials}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log("Successfully added gas record:", result);
+        showToast("Gas record saved successfully!");
+        submitButton.textContent = "Refreshing Home Page";
+        await fetchVehicles(credentials);
+        showView('view-vehicle-list');
+        formType.reset();
+        dateBox.valueAsDate = new Date();
+    } catch (error) {
+        console.error(`Failed to add ${type} record: ${error}`);
+        showToast(`Error: ${error.message}`, 'error');
+    } finally {
+        // Re-enable the button and restore original text, regardless of success or failure
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+    }
+}
 
 // --- Core App Logic ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -151,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     document.getElementById('fuel-date').valueAsDate = new Date();
-    document.getElementById('odo-date').valueAsDate = new Date();
+    document.getElementById('odometer-date').valueAsDate = new Date();
 });
 
 // --- Event Listeners ---
@@ -187,7 +298,7 @@ refreshButton.addEventListener('click', () => {
 backFromFuel.addEventListener('click', () => {
     showView('view-vehicle-list');
 });
-backFromOdo.addEventListener('click', () => {
+backFromOdometer.addEventListener('click', () => {
     showView('view-vehicle-list');
 });
 
@@ -203,8 +314,7 @@ vehicleList.addEventListener('click', (event) => {
         const vehicleId = card.dataset.vehicleId;
 
         console.log(`Action '${action}' triggered for vehicle ID: ${vehicleId}`);
-        // TODO: Add logic here to navigate to the new page for this action
-        showView(action, )
+        showView(action, { "vehicleId": parseInt(vehicleId, 10) })
         return; // We've handled the click, so we're done.
     }
 
@@ -228,6 +338,33 @@ vehicleList.addEventListener('click', (event) => {
     }
 });
 
+fuelForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const vehicleId = parseInt(fuelForm.dataset.vehicleId, 10);
+    const record = {
+        date: event.target.date.value,
+        odometer: event.target.odometer.value,
+        fuelConsumed: event.target.fuelConsumed.value,
+        cost: event.target.cost.value,
+        isFillToFull: event.target.isFillToFull.checked,
+        missedFuelUp: event.target.missedFuelUp.checked
+    };
+    const type = 'gas';
+    // Call the new function to handle the API call
+    addRecord(vehicleId, record, type);
+});
+
+odometerForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const vehicleId = parseInt(odometerForm.dataset.vehicleId, 10);
+    const record = {
+        date: event.target.date.value,
+        odometer: event.target.odometer.value,
+    };
+    const type = 'odometer';
+    // Call the new function to handle the API call
+    addRecord(vehicleId, record, type);
+});
 
 // Register the service worker
 if ('serviceWorker' in navigator) {
@@ -241,3 +378,4 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+

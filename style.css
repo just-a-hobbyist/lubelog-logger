@@ -241,6 +241,12 @@ main h2 {
     color: #ffffff;
 }
 
+.save-btn:disabled {
+    background-color: #2f6181;
+    color: #c0c0c0;
+    cursor: not-allowed;
+}
+
 /* --- Login Modal Styles --- */
 #login-modal {
     position: fixed;
@@ -322,6 +328,101 @@ main h2 {
     border-radius: 0.375rem;
     cursor: pointer;
     transition: background-color 200ms ease-in-out;
+}
+
+/* --- New Toggle Switch Styles --- */
+.form-group-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+.toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.toggle-group label {
+    margin-bottom: 0;
+    font-weight: 500;
+    color: #d1d5db;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+    cursor: pointer;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #4a6572;
+    border-radius: 28px;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #3498db;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* --- Toast Notification Styles --- */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translate(-50%, 150%); /* Start off-screen */
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    background-color: #27ae60; /* Default success color */
+    color: #ffffff;
+    font-weight: 500;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+    z-index: 2000;
+    pointer-events: none; /* Prevent interaction while hidden */
+    max-width: 90%;
+}
+
+.toast.active {
+    transform: translate(-50%, 0); /* Slide into view */
+    opacity: 1;
+}
+
+/* Modifier class for error messages */
+.toast.error {
+    background-color: #c0392b; /* Error color */
 }
 
 /* --- Interaction State Fixes --- */
