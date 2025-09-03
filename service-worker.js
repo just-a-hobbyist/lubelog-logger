@@ -8,7 +8,7 @@ const urlsToCache = [
     './style.css',
     './scripts.js',
     './manifest.json',
-    './icons/icon-192x192.png', // Example icon, add all your icon sizes
+    './icons/icon-192x192.png',
     './icons/icon-512x512.png',
     './icons/icon-1024x1024.png',
     './icons/icon-32x32.png',
