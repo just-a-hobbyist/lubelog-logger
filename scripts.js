@@ -52,7 +52,7 @@ function showView(viewId, data) {
     } else if (viewId === 'view-add-odometer') {
         const vehicle = vehiclesCache.find(v => v.vehicleData.id === data.vehicleId);
         if (vehicle) {
-            odometerFormTitle.textContent = `Add Odometer for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
+            odometerFormTitle.textContent = `Add ${vehicle.vehicleData.useHours ? "Engine Hours" : "Odometer"} for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
             odometerForm.dataset.vehicleId = data.vehicleId;
         }
     }
