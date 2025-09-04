@@ -63,8 +63,8 @@
                         <input type="date" id="fuel-date" name="date" data-touch-feedback required>
                     </div>
                     <div class="form-group">
-                        <label for="fuel-odometer">Odometer</label>
-                        <input type="number" id="fuel-odometer" name="odometer" inputmode="numeric" data-touch-feedback required>
+                        <label for="fuel-odometer"><span name="hours-odometer">Odometer</span></label>
+                        <input type="number" id="fuel-odometer" name="odometer" inputmode="numeric" step="0.1" data-touch-feedback required>
                     </div>
                     <div class="form-group">
                         <label for="fuel-gallons">Fuel Consumed (Gallons/Liters)</label>
@@ -103,15 +103,15 @@
                     </svg>
                     Back to Vehicles
                 </button>
-                <h2 id="odometer-form-title">Add Odometer Record</h2>
+                <h2 id="odometer-form-title">Add <span name="hours-odometer">Odometer</span> Record</h2>
                 <form id="add-odometer-form" class="record-form">
                     <div class="form-group">
                         <label for="odometer-date">Date</label>
                         <input type="date" id="odometer-date" name="date" data-touch-feedback required>
                     </div>
                     <div class="form-group">
-                        <label for="odometer-odometer">Odometer</label>
-                        <input type="number" id="odometer-odometer" name="odometer" inputmode="numeric" data-touch-feedback required>
+                        <label for="odometer-odometer"><span name="hours-odometer">Odometer</span></label>
+                        <input type="number" id="odometer-odometer" name="odometer" inputmode="numeric" step="0.1" data-touch-feedback required>
                     </div>                    
                     <button type="submit" class="form-btn save-btn"data-touch-feedback >Save Record</button>
                 </form>

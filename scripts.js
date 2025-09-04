@@ -10,6 +10,9 @@ const sideMenu = document.getElementById('side-menu');
 const menuOverlay = document.getElementById('menu-overlay');
 const logoutButton = document.getElementById('logout-button');
 const closeMenuButton = document.getElementById('close-menu-button');
+const addOdoOdoHeader = document.getElementById('odometer-form-title');
+const addOdoOdoEntry = document.getElementById('odometer-odometer');
+const addFuelOdoEntry = document.getElementById('fuel-odometer');
 
 // Views
 const vehicleListView = document.getElementById('view-vehicle-list');
@@ -65,9 +68,10 @@ function createVehicleCard(vehicle) {
     const licensePlate = vehicle.vehicleData.licensePlate || 'No Plate';
     // Use optional chaining to safely get the odometer reading.
     const latestOdometer = vehicle.lastReportedOdometer?.toString() || 'N/A';
+    const hrsOdo = vehicle.vehicleData.useHours ? "Engine Hours" : "Odometer";
 
     return `
-        <li class="vehicle-card" data-vehicle-id="${vehicle.vehicleData.id}" data-touch-feedback>
+        <li class="vehicle-card" data-vehicle-id="${vehicle.vehicleData.id}" data-hours-odometer="${hrsOdo}" data-touch-feedback>
             <div class="card-header">
                 <div>
                     <h2>${vehicleName}</h2>
@@ -79,12 +83,12 @@ function createVehicleCard(vehicle) {
             </div>
             <div class="card-details">
                 <div class="odometer-info">
-                    <span>Last Reported Odometer</span>
+                    <span>Last Reported ${hrsOdo}</span>
                     <strong>${latestOdometer}</strong>
                 </div>
                 <div class="action-buttons">
-                    <button class="action-btn" data-action="view-add-fuel" data-touch-feedback>New Fuel Record</button>
-                    <button class="action-btn" data-action="view-add-odometer" data-touch-feedback>New Odometer Record</button>
+                    <button class="action-btn" data-action="view-add-fuel" data-hours-odometer="${hrsOdo}" data-touch-feedback>New Fuel Record</button>
+                    <button class="action-btn" data-action="view-add-odometer" data-hours-odometer="${hrsOdo}" data-touch-feedback>New ${hrsOdo} Record</button>
                 </div>
             </div>
         </li>
@@ -214,6 +218,7 @@ async function addRecord(vehicleId, record, type) {
         for (const key in record) {
             formData.append(key, record[key]);
         }
+        console.log(formData.toString());
 
         const response = await fetch(`${credentials.domain}/api/vehicle/${type}records/add?vehicleId=${vehicleId}`, {
             method: 'POST',
@@ -325,7 +330,7 @@ loginForm.addEventListener('submit', (event) => {
     }
 });
 
-refreshButton.addEventListener('click', () => {
+refreshButton.addEventListener('mouseup', () => {
     console.log("Manual refresh triggered.");
     const savedCreds = localStorage.getItem('lubeLoggerCreds');
     if (savedCreds) {
@@ -339,48 +344,30 @@ refreshButton.addEventListener('click', () => {
     }
 });
 
-backFromFuel.addEventListener('click', () => {
+backFromFuel.addEventListener('mouseup', () => {
     showView('view-vehicle-list');
 });
-backFromOdometer.addEventListener('click', () => {
+backFromOdometer.addEventListener('mouseup', () => {
     showView('view-vehicle-list');
 });
-
-function toggleMenu() {
-    if (document.body.classList.contains('menu-open')){
-        console.log("closing menu");
-        document.body.classList.remove('menu-open');
-    } else {
-        console.log("opening menu");
-        document.body.classList.add('menu-open');
-    }
-}
 
 menuButton.addEventListener('mouseup', () => {
-    toggleMenu();
+    if (document.body.classList.contains('menu-open')){
+        document.body.classList.remove('menu-open');
+    } else {
+        document.body.classList.add('menu-open');
+    }
 });
 
 menuOverlay.addEventListener('mouseup', () => {
-    toggleMenu();
+    document.body.classList.remove('menu-open');
 });
 
 closeMenuButton.addEventListener('mouseup', () => {
-    toggleMenu();
+    document.body.classList.remove('menu-open');
 });
 
-// menuButton.addEventListener('click', () => {
-//     toggleMenu();
-// });
-
-// menuOverlay.addEventListener('click', () => {
-//     toggleMenu();
-// });
-
-// closeMenuButton.addEventListener('click', () => {
-//     toggleMenu();
-// });
-
-logoutButton.addEventListener('click', () => {
+logoutButton.addEventListener('mouseup', () => {
     localStorage.removeItem('lubeLoggerCreds');
     localStorage.removeItem('vehicles');
     document.body.classList.remove('menu-open');
@@ -391,7 +378,7 @@ logoutButton.addEventListener('click', () => {
 });
 
 // Event listener for all interactions within the vehicle list
-vehicleList.addEventListener('click', (event) => {
+vehicleList.addEventListener('mouseup', (event) => {
     // Case 1: An action button inside the details was clicked
     const actionButton = event.target.closest('.action-btn');
     if (actionButton) {
@@ -401,6 +388,12 @@ vehicleList.addEventListener('click', (event) => {
         const card = actionButton.closest('.vehicle-card');
         const vehicleId = card.dataset.vehicleId;
 
+        const odoSpans = document.getElementsByName('hours-odometer');
+        odoSpans.forEach(sp => {
+            if (actionButton.dataset.hoursOdometer === "Odometer") sp.innerText = "Odometer";
+            else sp.innerText = "Engine Hours";
+        })
+        
         console.log(`Action '${action}' triggered for vehicle ID: ${vehicleId}`);
         showView(action, { "vehicleId": parseInt(vehicleId, 10) })
         return; // We've handled the click, so we're done.
