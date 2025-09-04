@@ -347,18 +347,38 @@ backFromOdometer.addEventListener('click', () => {
 });
 
 function toggleMenu() {
-    targetElement.classList.toggle('menu-open')
+    if (document.body.classList.contains('menu-open')){
+        console.log("closing menu");
+        document.body.classList.remove('menu-open');
+    } else {
+        console.log("opening menu");
+        document.body.classList.add('menu-open');
+    }
 }
 
-menuButton.addEventListener('touchend', () => {
+menuButton.addEventListener('mouseup', () => {
     toggleMenu();
 });
 
-menuOverlay.addEventListener('touchend', () => {
-    toggleMenu();});
+menuOverlay.addEventListener('mouseup', () => {
+    toggleMenu();
+});
 
-closeMenuButton.addEventListener('touchend', () => {
-    toggleMenu();});
+closeMenuButton.addEventListener('mouseup', () => {
+    toggleMenu();
+});
+
+// menuButton.addEventListener('click', () => {
+//     toggleMenu();
+// });
+
+// menuOverlay.addEventListener('click', () => {
+//     toggleMenu();
+// });
+
+// closeMenuButton.addEventListener('click', () => {
+//     toggleMenu();
+// });
 
 logoutButton.addEventListener('click', () => {
     localStorage.removeItem('lubeLoggerCreds');

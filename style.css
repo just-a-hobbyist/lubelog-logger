@@ -163,7 +163,7 @@ main h2 {
     padding: 0 1rem; /* No vertical padding when collapsed */
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.12s ease-out, padding 0.35s ease-out;
+    transition: max-height 0.35s ease-out, padding 0.35s ease-out;
 }
 
 .vehicle-card.expanded .card-details {
@@ -538,7 +538,8 @@ body.menu-open #side-menu {
 .card-header:active,
 #login-button:active,
 .action-btn:active,
-.back-button:active {
+.back-button:active,
+.close-menu-btn:active {
     background: rgba(255, 255, 255, 0.35) !important;
     transition-duration: 0s !important;
 }
