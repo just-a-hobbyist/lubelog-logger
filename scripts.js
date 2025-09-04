@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-
+    document.body.classList.remove('loading');
     document.getElementById('fuel-date').valueAsDate = new Date();
     document.getElementById('odometer-date').valueAsDate = new Date();
 });
@@ -346,17 +346,19 @@ backFromOdometer.addEventListener('click', () => {
     showView('view-vehicle-list');
 });
 
-menuButton.addEventListener('click', () => {
-    document.body.classList.toggle('menu-open');
+function toggleMenu() {
+    targetElement.classList.toggle('menu-open')
+}
+
+menuButton.addEventListener('touchend', () => {
+    toggleMenu();
 });
 
-menuOverlay.addEventListener('click', () => {
-    document.body.classList.remove('menu-open');
-});
+menuOverlay.addEventListener('touchend', () => {
+    toggleMenu();});
 
-closeMenuButton.addEventListener('click', () => {
-    document.body.classList.remove('menu-open');
-});
+closeMenuButton.addEventListener('touchend', () => {
+    toggleMenu();});
 
 logoutButton.addEventListener('click', () => {
     localStorage.removeItem('lubeLoggerCreds');

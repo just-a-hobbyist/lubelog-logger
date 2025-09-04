@@ -15,6 +15,13 @@ body {
     color: #f3f4f6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+}
+
+/* Prevent flash of unstyled content */
+body.loading {
+    opacity: 0;
 }
 
 /* --- Prevent scrolling when menu is open --- */
@@ -521,7 +528,8 @@ body.menu-open #side-menu {
 #header-buttons button,
 .vehicle-card,
 #login-button,
-.action-btn {
+.action-btn,
+.close-menu-btn {
     -webkit-tap-highlight-color: transparent;
 }
 
