@@ -1,5 +1,5 @@
 // A name for our cache
-const CACHE_NAME = 'lubelogger-pwa-cache-v1.0.2';
+const CACHE_NAME = 'lubelogger-pwa-cache-v1.0.3';
 
 // A list of all the essential files our app needs to run offline
 const urlsToCache = [
@@ -20,6 +20,7 @@ const urlsToCache = [
     './icons/favicon.ico',
     './icons/add-fuel.svg',
     './icons/add-odo.svg',
+    './icons/icon.svg'
 ];
 
 // --- Event Listeners ---

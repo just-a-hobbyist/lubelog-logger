@@ -2,9 +2,14 @@
 const loginModal = document.getElementById('login-modal');
 const loginForm = document.getElementById('login-form');
 const vehicleList = document.getElementById('vehicle-list');
-const refreshButton = document.getElementById('refresh-button'); // Get the refresh button
+const refreshButton = document.getElementById('refresh-button');
 const toast = document.getElementById('toast-notification');
 const domainField = document.getElementById('domain');
+const menuButton = document.getElementById('menu-button');
+const sideMenu = document.getElementById('side-menu');
+const menuOverlay = document.getElementById('menu-overlay');
+const logoutButton = document.getElementById('logout-button');
+const closeMenuButton = document.getElementById('close-menu-button');
 
 // Views
 const vehicleListView = document.getElementById('view-vehicle-list');
@@ -267,16 +272,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     // --- Touch Tolerance & Feedback Handler ---
-    // Allows a certain amount of movement on touch and still count as a tap rather than a drag
     let touchStartX = 0;
     let touchStartY = 0;
-    const tolerance = 10; // Allow 10px of movement and still count as a tap
+    const tolerance = 10;
 
     document.body.addEventListener('touchstart', (e) => {
         const targetElement = e.target.closest('[data-touch-feedback]');
         if (!targetElement) return;
 
-        // targetElement.classList.add('touch-active');
         const touch = e.touches[0];
         touchStartX = touch.clientX;
         touchStartY = touch.clientY;
@@ -290,9 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const touch = e.changedTouches[0];
             const deltaX = Math.abs(touch.clientX - touchStartX);
             const deltaY = Math.abs(touch.clientY - touchStartY);
-            console.log("registered touch movement of:", deltaX, deltaY);
             if (deltaX < tolerance && deltaY < tolerance) {
-                console.log("clicked", targetElement);
                 targetElement.click();
             }
         }
@@ -343,6 +344,28 @@ backFromFuel.addEventListener('click', () => {
 });
 backFromOdometer.addEventListener('click', () => {
     showView('view-vehicle-list');
+});
+
+menuButton.addEventListener('click', () => {
+    document.body.classList.toggle('menu-open');
+});
+
+menuOverlay.addEventListener('click', () => {
+    document.body.classList.remove('menu-open');
+});
+
+closeMenuButton.addEventListener('click', () => {
+    document.body.classList.remove('menu-open');
+});
+
+logoutButton.addEventListener('click', () => {
+    localStorage.removeItem('lubeLoggerCreds');
+    localStorage.removeItem('vehicles');
+    document.body.classList.remove('menu-open');
+    vehicleList.innerHTML = '';
+    showView('view-vehicle-list');
+    loginModal.classList.remove('hidden');
+    showToast("You have been logged out.");
 });
 
 // Event listener for all interactions within the vehicle list
