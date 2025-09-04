@@ -91,6 +91,25 @@
                             </label>
                         </div>
                     </div>
+                    <!-- Notes and Tags Expander -->
+                    <div class="form-expander">
+                        <div class="form-expander-header" data-touch-feedback>
+                            <span>Notes & Tags</span>
+                            <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </div>
+                        <div class="form-details">
+                            <div class="form-group">
+                                <label for="fuel-notes">Notes</label>
+                                <textarea id="fuel-notes" name="notes" rows="3" data-touch-feedback></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="fuel-tags">Tags (space-separated)</label>
+                                <input type="text" id="fuel-tags" name="tags" data-touch-feedback>
+                            </div>
+                        </div>
+                    </div>
                     <button type="submit" class="form-btn save-btn" data-touch-feedback>Save Record</button>
                 </form>
             </div>
@@ -112,7 +131,27 @@
                     <div class="form-group">
                         <label for="odometer-odometer"><span name="hours-odometer">Odometer</span></label>
                         <input type="number" id="odometer-odometer" name="odometer" inputmode="numeric" data-touch-feedback required>
-                    </div>                    
+                    </div>
+                    <!-- Notes and Tags Expander -->
+                    <div class="form-expander">
+                        <div class="form-expander-header" data-touch-feedback>
+                            <span>Notes & Tags</span>
+                            <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </div>
+                        <div class="form-details">
+                            <div class="form-group">
+                                <label for="odometer-notes">Notes</label>
+                                <textarea id="odometer-notes" name="notes" rows="3" data-touch-feedback></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="odometer-tags">Tags (space-separated)</label>
+                                <input type="text" id="odometer-tags" name="tags" data-touch-feedback>
+                            </div>
+                        </div>
+                    </div>
+                                 
                     <button type="submit" class="form-btn save-btn"data-touch-feedback >Save Record</button>
                 </form>
             </div>

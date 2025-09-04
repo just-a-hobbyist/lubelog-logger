@@ -138,6 +138,10 @@ async function fetchVehicles(credentials) {
         
         localStorage.setItem("vehicles", JSON.stringify(vehicles));
         renderVehicles(vehicles);
+        if (toastTimeout && toast.textContent === "Refreshing Vehicle List...") {
+            clearTimeout(toastTimeout);
+            toast.classList.remove('active');
+        }
 
     } catch (error) {
         console.error("Failed to fetch vehicles:", error);
@@ -213,10 +217,11 @@ async function addRecord(vehicleId, record, type) {
         }
         const credentials = JSON.parse(savedCreds);
         const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
-
         const formData = new URLSearchParams();
         for (const key in record) {
-            formData.append(key, record[key]);
+            if (record[key]) {
+                formData.append(key, record[key]);
+            }
         }
         console.log(formData.toString());
 
@@ -344,10 +349,10 @@ refreshButton.addEventListener('mouseup', () => {
     }
 });
 
-backFromFuel.addEventListener('mouseup', () => {
+backFromFuel.addEventListener('click', () => {
     showView('view-vehicle-list');
 });
-backFromOdometer.addEventListener('mouseup', () => {
+backFromOdometer.addEventListener('click', () => {
     showView('view-vehicle-list');
 });
 
@@ -428,7 +433,9 @@ fuelForm.addEventListener('submit', (event) => {
         fuelConsumed: event.target.fuelConsumed.value,
         cost: event.target.cost.value,
         isFillToFull: event.target.isFillToFull.checked,
-        missedFuelUp: event.target.missedFuelUp.checked
+        missedFuelUp: event.target.missedFuelUp.checked,
+        notes: event.target.notes.value,
+        tags: event.target.tags.value,
     };
     const type = 'gas';
     // Call the new function to handle the API call
@@ -441,10 +448,18 @@ odometerForm.addEventListener('submit', (event) => {
     const record = {
         date: event.target.date.value,
         odometer: event.target.odometer.value,
+        notes: event.target.notes.value,
+        tags: event.target.tags.value,
     };
     const type = 'odometer';
     // Call the new function to handle the API call
     addRecord(vehicleId, record, type);
+});
+
+document.querySelectorAll('.form-expander-header').forEach(header => {
+    header.addEventListener('mouseup', () => {
+        header.closest('.record-form').classList.toggle('expanded');
+    });
 });
 
 // Register the service worker

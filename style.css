@@ -17,6 +17,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
     opacity: 1;
     transition: opacity 0.4s ease-in-out;
+    overscroll-behavior-y: contain;
 }
 
 /* Prevent flash of unstyled content */
@@ -260,6 +261,58 @@ main h2 {
     cursor: not-allowed;
 }
 
+/* --- Form Expander Styles --- */
+.form-expander {
+    border-top: 1px solid #4a6572;
+    border-bottom: 1px solid #4a6572;
+    margin: 0.5rem 0;
+}
+
+.form-expander-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: #d1d5db;
+}
+
+.form-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease-out;
+}
+
+.record-form.expanded .form-details {
+    max-height: 15rem; /* Adjust as needed */
+}
+
+.record-form.expanded .chevron-icon {
+    transform: rotate(180deg);
+}
+
+textarea,
+input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #4a6572;
+    border: 1px solid #5f7a87;
+    border-radius: 0.375rem;
+    color: #ffffff;
+    font-size: 1rem;
+    outline: none;
+    transition: box-shadow 150ms ease-in-out;
+    font-family: 'Inter', sans-serif;
+    resize: vertical;
+}
+
+textarea:focus,
+input[type="text"]:focus {
+    box-shadow: 0 0 0 2px #3498db;
+    border-color: #3498db;
+}
+
 /* --- Login Modal Styles --- */
 #login-modal {
     position: fixed;
@@ -343,7 +396,7 @@ main h2 {
     transition: background-color 200ms ease-in-out;
 }
 
-/* --- New Toggle Switch Styles --- */
+/* --- Toggle Switch Styles --- */
 .form-group-row {
     display: flex;
     justify-content: space-around;
@@ -508,7 +561,7 @@ body.menu-open #side-menu {
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     opacity: 0;
-    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+    transition: transform 0.2s ease-out, opacity 0.4s ease-out;
     z-index: 2000;
     pointer-events: none; /* Prevent interaction while hidden */
     max-width: 90%;
