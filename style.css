@@ -418,6 +418,7 @@ input[type="text"]:focus {
     margin-bottom: 0;
     font-weight: 500;
     color: #d1d5db;
+    text-align: center;
 }
 
 .toggle-switch {
@@ -462,7 +463,7 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-    transform: translateX(22px);
+    left: calc(100% - 24px);
 }
 
 /* --- Side Menu Styles --- */
