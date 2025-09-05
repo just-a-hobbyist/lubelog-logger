@@ -26,13 +26,13 @@ That's pretty much it, it's a simple app designed to do a simple task easily.
 
 For now, this will require manual installation, but there are plans in the future to make this a little easier. I'm not sure I want to get into Docker, especially considering it's just a PWA. 
   
-2. Open your teminal of choice and navigate to the location at which you want to store the files (recommend `/var/www/` for the Linux users among us).
+1. Open your teminal of choice and navigate to the location at which you want to store the files (recommend `/var/www/` for the Linux users among us).
 
-3. Run the following command to copy all files to a new folder:  
+2. Run the following command to copy all files to a new folder:  
 `git clone https://github.com/just-a-hobbyist/lubelog-logger.git`  
 Feel free to rename the folder if you don't like the name.
 
-4. Create a new `.conf` file:  
+3. Create a new `.conf` file:  
 `sudo nano /etc/nginx/sites-available/lubelog-logger.conf`  
 And fill out the following according to your setup:  
 ```
@@ -53,16 +53,16 @@ server {
 }
 ```  
 
-5. Save and exit the editor. Enable the site:  
+4. Save and exit the editor. Enable the site:  
 `sudo ln -s /etc/nginx/sites-available/lubelog-logger.conf /etc/nginx/  sites-enabled/`
 
-6. Test the nginx configuration:  
+5. Test the nginx configuration:  
 `sudo nginx -t`
 
-7. If test is successful, reload nginx to apply changes:  
+6. If test is successful, reload nginx to apply changes:  
 `sudo systemctl reload nginx`
 
-8. If you are hosting the PWA and LubeLogger instance on different domains, you'll need to add a CORS header in your reverse proxy to your *LubeLogger Server* so that the PWA can talk to it.  
+7. If you are hosting the PWA and LubeLogger instance on different domains, you'll need to add a CORS header in your reverse proxy to your *LubeLogger Server* so that the PWA can talk to it.  
 ```
 # Inside the Nginx config for your main LubeLogger server...
 location / {
@@ -81,9 +81,9 @@ location / {
     }
 }
 ```  
-9. Save the file, run `sudo nginx -t` and `sudo systemctl reload nginx` one more time to update the configuration. 
+8. Save the file, run `sudo nginx -t` and `sudo systemctl reload nginx` one more time to update the configuration. 
 
-10. That's it, you should be able to run the app now. Navigate to the domain you set in the `lubelog-logger.conf` file to get started.
+9. That's it, you should be able to run the app now. Navigate to the domain you set in the `lubelog-logger.conf` file to get started.
 
 ## Usage
 
