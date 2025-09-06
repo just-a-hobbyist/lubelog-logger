@@ -13,17 +13,18 @@ const closeMenuButton = document.getElementById('close-menu-button');
 const addOdoOdoHeader = document.getElementById('odometer-form-title');
 const addOdoOdoEntry = document.getElementById('odometer-odometer');
 const addFuelOdoEntry = document.getElementById('fuel-odometer');
-
-// Views
-const vehicleListView = document.getElementById('view-vehicle-list');
-const addFuelView = document.getElementById('view-add-fuel');
-const addOdometerView = document.getElementById('view-add-odometer');
 const fuelForm = document.getElementById('add-fuel-form');
 const odometerForm = document.getElementById('add-odometer-form');
 const fuelFormTitle = document.getElementById('fuel-form-title');
 const odometerFormTitle = document.getElementById('odometer-form-title');
 const backFromFuel = document.getElementById('back-from-fuel');
 const backFromOdometer = document.getElementById('back-from-odometer');
+
+// Views
+const vehicleListView = document.getElementById('view-vehicle-list');
+const addFuelView = document.getElementById('view-add-fuel');
+const addOdometerView = document.getElementById('view-add-odometer');
+
 
 
 
@@ -35,12 +36,19 @@ let toastTimeout; // To manage toast timer
  * Manages which view is currently visible.
  * @param {string} viewId - The id of the view to show.
  * @param {object} [data] - Optional data for the view.
+ * @param {boolean} isHistoryNavigation - Whether or not the user is trying to navigate the browser history.
  */
-function showView(viewId, data) {
+function showView(viewId, data, isHistoryNavigation = false) {
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     const viewToShow = document.getElementById(viewId);
     if (viewToShow) {
         viewToShow.classList.add('active');
+    }
+
+    // Add a new entry to the browser's history unless we're navigating via the back button
+    if (!isHistoryNavigation) {
+        const url = `#${viewId}`;
+        history.pushState({ viewId, data }, '', url);
     }
 
     if (viewId === 'view-add-fuel') {
@@ -48,6 +56,8 @@ function showView(viewId, data) {
         if (vehicle) {
             fuelFormTitle.textContent = `Add Fuel for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
             fuelForm.dataset.vehicleId = data.vehicleId;
+            if (vehicle.vehicleData.odometerOptional === true) addFuelOdoEntry.required = false;
+            else addOdoOdoEntry.required = true;
         }
     } else if (viewId === 'view-add-odometer') {
         const vehicle = vehiclesCache.find(v => v.vehicleData.id === data.vehicleId);
@@ -65,7 +75,14 @@ function showView(viewId, data) {
  */
 function createVehicleCard(vehicle) {
     const vehicleName = `${vehicle.vehicleData.year} ${vehicle.vehicleData.make} ${vehicle.vehicleData.model}`;
-    const licensePlate = vehicle.vehicleData.licensePlate || 'No Plate';
+    let vehicleIdentifier;
+    if (vehicle.vehicleData.vehicleIdentifier !== "LicensePlate") {
+        const identBy = vehicle.vehicleData.vehicleIdentifier;
+        vehicleIdentifier = vehicle.vehicleData.extraFields.map(fld => {
+            if (fld.name === identBy) return fld.value
+        });
+    } else vehicleIdentifier = vehicle.vehicleData.licensePlate || 'No Plate';
+
     // Use optional chaining to safely get the odometer reading.
     const latestOdometer = vehicle.lastReportedOdometer?.toString() || 'N/A';
     const hrsOdo = vehicle.vehicleData.useHours ? "Engine Hours" : "Odometer";
@@ -75,7 +92,7 @@ function createVehicleCard(vehicle) {
             <div class="card-header">
                 <div>
                     <h2>${vehicleName}</h2>
-                    <p>${licensePlate}</p>
+                    <p>${vehicleIdentifier}</p>
                 </div>
                 <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -186,7 +203,7 @@ function showToast(message, type = 'success') {
 async function addRecord(vehicleId, record, type) {
     let formType;
     let dateBox;
-    let successMsg = " saved successfully!";
+    let successMsg = " record saved successfully!";
     switch (type) {
         case 'gas':
             formType = fuelForm;
@@ -219,7 +236,7 @@ async function addRecord(vehicleId, record, type) {
         const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
         const formData = new URLSearchParams();
         for (const key in record) {
-            if (record[key]) {
+            if (record[key] != null && record[key] !== '') {
                 formData.append(key, record[key]);
             }
         }
@@ -311,6 +328,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.remove('loading');
     document.getElementById('fuel-date').valueAsDate = new Date();
     document.getElementById('odometer-date').valueAsDate = new Date();
+
+    // Listen for browser back/forward navigation (phone's back button)
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.viewId) {
+            // Show the view from the history state, marking it as a history navigation
+            // so we don't create a new history entry.
+            showView(event.state.viewId, event.state.data, true);
+        } else {
+            // If there's no state (e.g., the user edited the URL manually), 
+            // default to the main list.
+            showView('view-vehicle-list', {}, true);
+        }
+    });
 });
 
 // --- Event Listeners ---
@@ -350,10 +380,10 @@ refreshButton.addEventListener('mouseup', () => {
 });
 
 backFromFuel.addEventListener('click', () => {
-    showView('view-vehicle-list');
+    history.back();
 });
 backFromOdometer.addEventListener('click', () => {
-    showView('view-vehicle-list');
+    history.back();
 });
 
 menuButton.addEventListener('mouseup', () => {
@@ -401,7 +431,7 @@ vehicleList.addEventListener('mouseup', (event) => {
         
         console.log(`Action '${action}' triggered for vehicle ID: ${vehicleId}`);
         showView(action, { "vehicleId": parseInt(vehicleId, 10) })
-        return; // We've handled the click, so we're done.
+        return;
     }
 
     // Case 2: The card header was clicked to expand/collapse
@@ -417,7 +447,6 @@ vehicleList.addEventListener('mouseup', (event) => {
             openCard.classList.remove('expanded');
         });
 
-        // If the card we clicked wasn't already open, expand it.
         if (!isAlreadyExpanded) {
             card.classList.add('expanded');
         }
@@ -429,7 +458,7 @@ fuelForm.addEventListener('submit', (event) => {
     const vehicleId = parseInt(fuelForm.dataset.vehicleId, 10);
     const record = {
         date: event.target.date.value,
-        odometer: event.target.odometer.value,
+        odometer: event.target.odometer.value || 'false',
         fuelConsumed: event.target.fuelConsumed.value,
         cost: event.target.cost.value,
         isFillToFull: event.target.isFillToFull.checked,
@@ -438,7 +467,7 @@ fuelForm.addEventListener('submit', (event) => {
         tags: event.target.tags.value,
     };
     const type = 'gas';
-    // Call the new function to handle the API call
+    console.log(record)
     addRecord(vehicleId, record, type);
 });
 

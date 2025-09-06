@@ -1,7 +1,5 @@
-// A name for our cache
 const CACHE_NAME = 'lubelogger-pwa-cache-v1.0.6';
 
-// A list of all the essential files our app needs to run offline
 const urlsToCache = [
     './',
     './index.html',
@@ -32,7 +30,6 @@ self.addEventListener('install', (event) => {
                 return cache.addAll(urlsToCache);
             })
             .catch((error) => {
-                // This is where the error you're seeing originates
                 console.error('Service Worker: Caching failed', error);
             })
     );

@@ -588,7 +588,8 @@ body.menu-open #side-menu {
 .vehicle-card,
 #login-button,
 .action-btn,
-.close-menu-btn {
+.close-menu-btn,
+.toggle-switch {
     -webkit-tap-highlight-color: transparent;
 }
 
