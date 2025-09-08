@@ -57,7 +57,7 @@ function showView(viewId, data, isHistoryNavigation = false) {
             fuelFormTitle.textContent = `Add Fuel for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
             fuelForm.dataset.vehicleId = data.vehicleId;
             if (vehicle.vehicleData.odometerOptional === true) addFuelOdoEntry.required = false;
-            else addOdoOdoEntry.required = true;
+            else addFuelOdoEntry.required = true;
         }
     } else if (viewId === 'view-add-odometer') {
         const vehicle = vehiclesCache.find(v => v.vehicleData.id === data.vehicleId);
@@ -133,7 +133,7 @@ function renderVehicles(vehicles) {
  * @param {object} credentials - The user's credentials object.
  */
 async function fetchVehicles(credentials) {
-    console.log("Attempting to fetch vehicles from:", credentials.domain);
+    console.log("Attempting to fetch vehicles");
 
     const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
     const headers = {
@@ -151,7 +151,7 @@ async function fetchVehicles(credentials) {
         }
 
         const vehicles = await response.json();
-        console.log("Successfully fetched vehicles:", vehicles);
+        console.log("Successfully fetched vehicles");
         
         localStorage.setItem("vehicles", JSON.stringify(vehicles));
         renderVehicles(vehicles);
@@ -240,7 +240,6 @@ async function addRecord(vehicleId, record, type) {
                 formData.append(key, record[key]);
             }
         }
-        console.log(formData.toString());
 
         const response = await fetch(`${credentials.domain}/api/vehicle/${type}records/add?vehicleId=${vehicleId}`, {
             method: 'POST',
@@ -257,11 +256,12 @@ async function addRecord(vehicleId, record, type) {
         }
 
         const result = await response.json();
-        console.log("Successfully added record:", result);
+        console.log("Successfully added record");
         showToast(successMsg);
         submitButton.textContent = "Refreshing Home Page";
         await fetchVehicles(credentials);
-        showView('view-vehicle-list');
+        // showView('view-vehicle-list', null, true);
+        history.back();
         formType.reset();
         dateBox.valueAsDate = new Date();
     } catch (error) {
@@ -458,7 +458,7 @@ fuelForm.addEventListener('submit', (event) => {
     const vehicleId = parseInt(fuelForm.dataset.vehicleId, 10);
     const record = {
         date: event.target.date.value,
-        odometer: event.target.odometer.value || 'false',
+        odometer: event.target.odometer.value || 0,
         fuelConsumed: event.target.fuelConsumed.value,
         cost: event.target.cost.value,
         isFillToFull: event.target.isFillToFull.checked,
