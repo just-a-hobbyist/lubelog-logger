@@ -16,7 +16,13 @@ const urlsToCache = [
     './icons/favicon-16x16.png',
     './icons/favicon-32x32.png',
     './icons/favicon.ico',
-    './icons/icon.svg'
+    './icons/icon.svg',
+    './img/back-btn.svg',
+    './img/chevron-icon.svg',
+    './img/close-btn.svg',
+    './img/logo.svg',
+    './img/menu-btn.svg',
+    './img/refresh-btn.svg'
 ];
 
 // --- Event Listeners ---
