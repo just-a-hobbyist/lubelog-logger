@@ -19,6 +19,11 @@ const fuelFormTitle = document.getElementById('fuel-form-title');
 const odometerFormTitle = document.getElementById('odometer-form-title');
 const backFromFuel = document.getElementById('back-from-fuel');
 const backFromOdometer = document.getElementById('back-from-odometer');
+const viewSavedEntries = document.getElementById('view-saved-entries');
+const savedEntriesButton = document.getElementById('saved-entries-button');
+const savedEntriesList = document.getElementById('saved-entries-list');
+const backFromSaved = document.getElementById('back-from-saved');
+const retryAllButton = document.getElementById('retry-all-button');
 
 // Views
 const vehicleListView = document.getElementById('view-vehicle-list');
@@ -94,9 +99,7 @@ function createVehicleCard(vehicle) {
                     <h2>${vehicleName}</h2>
                     <p>${vehicleIdentifier}</p>
                 </div>
-                <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
+                <img src="img/chevron-icon.svg" alt="Expand" class="chevron-icon">
             </div>
             <div class="card-details">
                 <div class="odometer-info">
@@ -126,6 +129,52 @@ function renderVehicles(vehicles) {
 
     const vehicleCardsHTML = vehicles.map(createVehicleCard).join('');
     vehicleList.innerHTML = vehicleCardsHTML;
+}
+
+/**
+ * Renders the list of saved (offline) entries into the DOM.
+ */
+function renderSavedEntries(entriesToRender) {
+    const savedEntries = entriesToRender 
+        ? entriesToRender 
+        : JSON.parse(localStorage.getItem('savedEntries')) || [];
+    if (savedEntries.length === 0) {
+        savedEntriesList.innerHTML = '<li><p class="no-vehicles-message">No saved entries.</p></li>';
+        retryAllButton.style.display = 'none'; // Hide button if no entries
+        return;
+    }
+
+    retryAllButton.style.display = 'block'; // Show button if there are entries
+    savedEntriesList.innerHTML = savedEntries.map((entry, index) => {
+        const vehicle = vehiclesCache.find(v => v.vehicleData.id === entry.vehicleId);
+        const vehicleName = vehicle ? `${vehicle.vehicleData.year} ${vehicle.vehicleData.make} ${vehicle.vehicleData.model}` : 'Unknown Vehicle';
+        const entryType = entry.type.charAt(0).toUpperCase() + entry.type.slice(1);
+        const timestamp = new Date(entry.timestamp).toLocaleString();
+
+        return `
+            <li class="saved-entry-card" data-entry-index="${index}">
+                <p><strong>Vehicle:</strong> ${vehicleName}</p>
+                <p><strong>Type:</strong> ${entryType} Record</p>
+                <p class="timestamp">Saved: ${timestamp}</p>
+                <div class="saved-entry-actions">
+                    <button class="action-btn retry-btn" data-touch-feedback>Retry</button>
+                    <button class="action-btn delete-btn" data-touch-feedback>Delete</button>
+                </div>
+            </li>
+        `;
+    }).join('');
+}
+
+/**
+ * Saves a failed record submission to local storage.
+ * @param {object} record - The record that failed to submit.
+ */
+function saveRecordOffline(record) {
+    const savedEntries = JSON.parse(localStorage.getItem('savedEntries')) || [];
+    record.timestamp = new Date().toISOString(); // Add a timestamp
+    savedEntries.push(record);
+    localStorage.setItem('savedEntries', JSON.stringify(savedEntries));
+    showToast('Network offline. Record saved for later.', 'error');
 }
 
 /**
@@ -200,7 +249,7 @@ function showToast(message, type = 'success') {
  * @param {object} record - The gas record data.
  * @param {string} type - The type ['gas' or 'odometer'] of record to submit
  */
-async function addRecord(vehicleId, record, type) {
+async function addRecord(vehicleId, record, type, isRetry = false) {
     let formType;
     let dateBox;
     let successMsg = " record saved successfully!";
@@ -258,20 +307,41 @@ async function addRecord(vehicleId, record, type) {
         const result = await response.json();
         console.log("Successfully added record");
         showToast(successMsg);
-        submitButton.textContent = "Refreshing Home Page";
-        await fetchVehicles(credentials);
-        // showView('view-vehicle-list', null, true);
-        history.back();
+        if (!isRetry) {
+            submitButton.textContent = "Refreshing Home Page";
+            await fetchVehicles(credentials);
+            history.back();
+        }
         formType.reset();
         dateBox.valueAsDate = new Date();
+        return true;
     } catch (error) {
-        console.error(`Failed to add ${type} record: ${error}`);
-        showToast(`Error: ${error.message}`, 'error');
+        console.error(`Failed to add ${type} record:`, error);
+
+        // Check for a network error specifically
+        if (error instanceof TypeError && error.message === 'Failed to fetch' && !isRetry) {
+            saveRecordOffline({ vehicleId, record, type });
+            showView('view-vehicle-list'); // Go back to the list after saving
+            formType.reset();
+            dateBox.valueAsDate = new Date();        
+        } else {
+            showToast(`Error: ${error.message}`, 'error');
+        }
+        return false;
     } finally {
         // Re-enable the button and restore original text, regardless of success or failure
-        submitButton.disabled = false;
-        submitButton.textContent = originalButtonText;
+        if (!isRetry) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
     }
+}
+
+/**
+ * Closes the Side Menu
+ */
+function closeSideMenu() {
+    document.body.classList.remove('menu-open');
 }
 
 // --- Core App Logic ---
@@ -379,33 +449,33 @@ refreshButton.addEventListener('mouseup', () => {
     }
 });
 
-backFromFuel.addEventListener('click', () => {
+backFromFuel.addEventListener('mouseup', () => {
     history.back();
 });
-backFromOdometer.addEventListener('click', () => {
+backFromOdometer.addEventListener('mouseup', () => {
     history.back();
 });
 
 menuButton.addEventListener('mouseup', () => {
     if (document.body.classList.contains('menu-open')){
-        document.body.classList.remove('menu-open');
+        closeSideMenu();
     } else {
         document.body.classList.add('menu-open');
     }
 });
 
 menuOverlay.addEventListener('mouseup', () => {
-    document.body.classList.remove('menu-open');
+    closeSideMenu();
 });
 
 closeMenuButton.addEventListener('mouseup', () => {
-    document.body.classList.remove('menu-open');
+    closeSideMenu();
 });
 
 logoutButton.addEventListener('mouseup', () => {
     localStorage.removeItem('lubeLoggerCreds');
     localStorage.removeItem('vehicles');
-    document.body.classList.remove('menu-open');
+    closeSideMenu();
     vehicleList.innerHTML = '';
     showView('view-vehicle-list');
     loginModal.classList.remove('hidden');
@@ -429,7 +499,6 @@ vehicleList.addEventListener('mouseup', (event) => {
             else sp.innerText = "Engine Hours";
         })
         
-        console.log(`Action '${action}' triggered for vehicle ID: ${vehicleId}`);
         showView(action, { "vehicleId": parseInt(vehicleId, 10) })
         return;
     }
@@ -483,6 +552,74 @@ odometerForm.addEventListener('submit', (event) => {
     const type = 'odometer';
     // Call the new function to handle the API call
     addRecord(vehicleId, record, type);
+});
+
+savedEntriesButton.addEventListener('mouseup', () => {
+    closeSideMenu();
+    renderSavedEntries();
+    showView('view-saved-entries');
+});
+
+backFromSaved.addEventListener('mouseup', () => {
+    history.back();
+});
+
+// Use event delegation for the retry/delete buttons
+savedEntriesList.addEventListener('mouseup', async (event) => {
+    const target = event.target;
+    const card = target.closest('.saved-entry-card');
+    if (!card) return;
+
+    const entryIndex = parseInt(card.dataset.entryIndex, 10);
+    let savedEntries = JSON.parse(localStorage.getItem('savedEntries')) || [];
+    const entry = savedEntries[entryIndex];
+
+    if (target.classList.contains('retry-btn')) {
+        target.textContent = 'Retrying...';
+        target.disabled = true;
+        const success = await addRecord(entry.vehicleId, entry.record, entry.type, true); // Pass a flag to indicate it's a retry
+        if (success) {
+            savedEntries.splice(entryIndex, 1); // Remove from array
+            localStorage.setItem('savedEntries', JSON.stringify(savedEntries));
+            renderSavedEntries(); // Re-render the list
+        } else {
+            target.textContent = 'Retry';
+            target.disabled = false;
+        }
+    }
+
+    if (target.classList.contains('delete-btn')) {
+        if (confirm('Are you sure you want to delete this saved entry?')) {
+            savedEntries.splice(entryIndex, 1);
+            localStorage.setItem('savedEntries', JSON.stringify(savedEntries));
+            renderSavedEntries();
+            showToast('Entry deleted.');
+        }
+    }
+});
+
+retryAllButton.addEventListener('mouseup', async () => {
+    let savedEntries = JSON.parse(localStorage.getItem('savedEntries')) || [];
+    if (savedEntries.length === 0) return;
+    const entriesToRender = savedEntries.map(e => e);
+
+    showToast(`Attempting to submit ${savedEntries.length} saved entries...`);
+    let remainingEntries = [];
+    
+    for (const entry of savedEntries) {
+        const success = await addRecord(entry.vehicleId, entry.record, entry.type, true);
+        if (!success) {
+            remainingEntries.push(entry); // Keep it if it failed
+        } else {
+            const entryIndex = savedEntries.findIndex(e => e.timestamp === entry.timestamp);
+            entriesToRender.splice(entryIndex, 1);
+            renderSavedEntries(entriesToRender);
+        }
+    }
+
+    localStorage.setItem('savedEntries', JSON.stringify(remainingEntries));
+    renderSavedEntries(); // Re-render with any remaining entries
+    showToast(`Finished. ${savedEntries.length - remainingEntries.length} entries submitted.`);
 });
 
 document.querySelectorAll('.form-expander-header').forEach(header => {

@@ -27,13 +27,11 @@
             <div id="header-buttons">
                 <!-- Refresh Button -->
                 <button id="refresh-button" aria-label="Refresh vehicles" data-touch-feedback>
-                    <svg fill="#FFFFFF" height="200px" width="200px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.002 512.002" xml:space="preserve" style="--darkreader-inline-fill: var(--darkreader-background-ffffff, #181a1b); --darkreader-inline-stroke: var(--darkreader-text-ffffff, #e8e6e3);" stroke="#FFFFFF" data-darkreader-inline-fill="" data-darkreader-inline-stroke=""><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M436.866,436.871c48.312-48.311,74.921-112.546,74.921-180.871c0-141.039-114.744-255.785-255.783-255.786v49.507 c113.741,0.002,206.276,92.539,206.276,206.279c0,55.101-21.458,106.902-60.42,145.864l-7.571,7.571l-67.552-67.552l0.021,170.076 l170.096,0.041l-67.559-67.559L436.866,436.871z"></path> </g> </g> <g> <g> <path d="M49.724,256.001c0-55.101,21.458-106.902,60.42-145.864l7.571-7.571l67.552,67.552L185.245,0.041L15.148,0l67.559,67.559 l-7.571,7.57C26.824,123.439,0.215,187.674,0.215,255.999c0,141.039,114.744,255.785,255.783,255.786v-49.507 C142.258,462.278,49.724,369.742,49.724,256.001z"></path> </g> </g> </g></svg>
+                    <img src="/img/refresh-btn.svg">
                 </button>
                 <!-- Menu Button -->
                 <button id="menu-button" aria-label="Open menu" data-touch-feedback>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                    </svg>
+                    <img src="/img/menu-btn.svg">
                 </button>
             </div>
         </header>
@@ -51,9 +49,7 @@
             <div id="view-add-fuel" class="view">
                 <!-- Back button specific to this view -->
                 <button id="back-from-fuel" class="back-button" data-touch-feedback>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                    </svg>
+                    <img src="img/back-btn.svg">
                     Back to Vehicles
                 </button>
                 <h2 id="fuel-form-title">Add Fuel Record</h2>
@@ -95,9 +91,7 @@
                     <div class="form-expander">
                         <div class="form-expander-header" data-touch-feedback>
                             <span>Notes & Tags</span>
-                            <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                            </svg>
+                            <img class="chevron-icon" src="/img/chevron-icon.svg">
                         </div>
                         <div class="form-details">
                             <div class="form-group">
@@ -117,9 +111,7 @@
             <div id="view-add-odometer" class="view">
                 <!-- Back button specific to this view -->
                 <button id="back-from-odometer" class="back-button" data-touch-feedback>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                    </svg>
+                    <img src="img/back-btn.svg">
                     Back to Vehicles
                 </button>
                 <h2 id="odometer-form-title">Add <span name="hours-odometer">Odometer</span> Record</h2>
@@ -136,9 +128,7 @@
                     <div class="form-expander">
                         <div class="form-expander-header" data-touch-feedback>
                             <span>Notes & Tags</span>
-                            <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                            </svg>
+                            <img class="chevron-icon" src="/img/chevron-icon.svg">
                         </div>
                         <div class="form-details">
                             <div class="form-group">
@@ -154,6 +144,21 @@
                                  
                     <button type="submit" class="form-btn save-btn"data-touch-feedback >Save Record</button>
                 </form>
+            </div>
+            <div id="view-saved-entries" class="view hidden">
+                <div>
+                    <button id="back-from-saved" class="back-button" data-touch-feedback>
+                        <img src="img/back-btn.svg" alt="Back">
+                        Back
+                    </button>
+                    <h2 class="form-title">Saved Entries</h2>
+                </div>
+                <div class="saved-entries-actions">
+                    <button id="retry-all-button" class="form-btn save-btn" data-touch-feedback>Retry All</button>
+                </div>
+                <ul id="saved-entries-list">
+                    <!-- Saved entries will be injected here by JavaScript -->
+                </ul>
             </div>
         </main>
 
@@ -186,18 +191,19 @@
     <nav id="side-menu">
         <!-- Close Menu Button -->
         <button id="close-menu-button" class="close-menu-btn" aria-label="Close menu" data-touch-feedback>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <img src="img/close-btn.svg">
         </button>
         <ul>
             <li>
                 <!-- Logout Button -->
                 <button id="logout-button" class="menu-item" data-touch-feedback>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
-                    </svg>
+                    <img src="img/logout-btn.svg">
                     Logout
+                </button>
+            </li>
+            <li>
+                <button id="saved-entries-button" class="menu-item" data-touch-feedback>
+                    Saved Entries
                 </button>
             </li>
         </ul>
