@@ -89,23 +89,30 @@ location / {
 
 Enter your domain, username, and password.  
   
-*screenshot to go here*
+<img src="/docs/images/login.png" alt="Login page screenshot" width="350"/>
   
 The app will pull all vehicles associated with that username. To manually refresh the list if you want/need to, tap the refresh icon in the top right. To add a fuel or odometer record, tap one of your vehicles, then the button for whichever record you'd like to add.  
   
-*screenshot to go here*
+<img src="/docs/images/vehicle-list.png" alt="Vehicle list screenshot" width="350"/>
   
 On the record entry page, fill out all necessary fields. To see Notes and Tags section, tap the "Notes & Tags" bar. Note: tags should be space-separated, just like they are on the native interface.  
   
-*screenshot to go here*
-  
-Tap the "Back to Vehicles" button to go back to your vehicle list.  
-  
-When you're done, click "Save Record". The app will push the data to your server. If it does not succeed, the form will **not** be cleared, so you can try again later. After a successful submission, you'll be notified and taken back to the main vehicle list.  
-  
-*screenshot to go here*
+<img src="docs/images/add-record.jpg" alt="Add record screenshot" width="350"/>
+
+When you're done, click "Save Record". The app will push the data to your server. If it does not succeed, the entry will be saved and is accessible under "Saved Entries", so you can try again later. After a successful submission, you'll be notified and taken back to the main vehicle list. 
+ 
+Tap the "Back to Vehicles" button to go back to your vehicle list if you don't want to make an entry.  
   
 To log out, tap the hamburger icon in the top right, then tap "Logout".  
+
+<img src="/docs/images/menu-bar.png" alt="Menu bar screenshot" width="350"/> 
+
+You can also tap "Saved Entries" to view any entries which failed due to network issues. From that menu you can retry them individually or all together, or delete them entirely. 
+
+This is also where you can check for updates to the app itself. The process is as follows: 
+TODO 1. This needs work and updating
+
+You can also set the auto-refresh interval. The default is 1 day. This is how often the app will refresh your vehicle list automatically when you open it. You may set it to 1, 3, or 7 days, or to never auto update. 
   
 ## Contributing 
 
