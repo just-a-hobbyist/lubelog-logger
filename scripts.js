@@ -25,6 +25,7 @@ const savedEntriesList = document.getElementById('saved-entries-list');
 const backFromSaved = document.getElementById('back-from-saved');
 const retryAllButton = document.getElementById('retry-all-button');
 const updateButton = document.getElementById('update-button');
+const refreshIntervalSelect = document.getElementById('refresh-interval-select');
 
 // Views
 const vehicleListView = document.getElementById('view-vehicle-list');
@@ -97,7 +98,7 @@ function createVehicleCard(vehicle) {
                     <h2>${vehicleName}</h2>
                     <p>${vehicleIdentifier}</p>
                 </div>
-                <img src="img/chevron-icon.svg" alt="Expand" class="chevron-icon">
+                <img src="./img/chevron-icon.svg" alt="Expand" class="chevron-icon">
             </div>
             <div class="card-details">
                 <div class="odometer-info">
@@ -199,8 +200,8 @@ async function fetchVehicles(credentials) {
 
         const vehicles = await response.json();
         console.log("Successfully fetched vehicles");
-        
         localStorage.setItem("vehicles", JSON.stringify(vehicles));
+        localStorage.setItem('lastFetchTime', new Date().toISOString());
         renderVehicles(vehicles);
         if (toastTimeout && toast.textContent === "Refreshing Vehicle List...") {
             clearTimeout(toastTimeout);
@@ -224,7 +225,6 @@ async function fetchVehicles(credentials) {
 function showToast(content, type = 'success', autoHide = true) {
     if (toastTimeout) clearTimeout(toastTimeout);
 
-    // Clear previous content
     toast.innerHTML = ''; 
 
     if (typeof content === 'string') {
@@ -270,7 +270,6 @@ async function addRecord(vehicleId, record, type, isRetry = false) {
     const submitButton = formType.querySelector('.save-btn');
     const originalButtonText = submitButton.textContent;
 
-    // Disable button and show loading state
     if (!isRetry) {
         submitButton.disabled = true;
         submitButton.textContent = 'Saving...';
@@ -329,7 +328,6 @@ async function addRecord(vehicleId, record, type, isRetry = false) {
         }
         return false;
     } finally {
-        // Re-enable the button and restore original text, regardless of success or failure
         if (!isRetry) {
             submitButton.disabled = false;
             submitButton.textContent = originalButtonText;
@@ -349,8 +347,7 @@ function closeSideMenu() {
  */
 function checkForUpdates() {
     updateButton.textContent = 'Checking...';
-    updateButton.disabled = true; // Disable button during check
-
+    updateButton.disabled = true;
     navigator.serviceWorker.getRegistration()
         .then(reg => {
             if (!reg) {
@@ -379,7 +376,6 @@ function checkForUpdates() {
  * Shows a custom toast notification prompting the user to reload to apply an update.
  */
 function showUpdateNotification() {
-    // We'll reuse our toast function for this!
     const toastContent = document.createElement('div');
     toastContent.style.display = 'flex';
     toastContent.style.alignItems = 'center';
@@ -387,7 +383,6 @@ function showUpdateNotification() {
 
     const reloadButton = document.createElement('button');
     reloadButton.textContent = 'Reload';
-    // Basic styling for the button inside the toast
     reloadButton.style.marginLeft = '1rem';
     reloadButton.style.border = '1px solid white';
     reloadButton.style.background = 'transparent';
@@ -404,7 +399,38 @@ function showUpdateNotification() {
     };
 
     toastContent.appendChild(reloadButton);
-    showToast(toastContent, 'success', false); // false = don't auto-hide
+    showToast(toastContent, 'success', false);
+}
+
+/**
+ * Checks if cached vehicle data is older than the user-defined threshold and refreshes if needed.
+ */
+function refreshDataIfStale() {
+    const savedCreds = localStorage.getItem('lubeLoggerCreds');
+    if (!savedCreds) return;
+
+    const intervalDays = parseInt(localStorage.getItem('refreshInterval') || '1', 10);
+
+    if (intervalDays === -1) {
+        console.log("Auto-refresh is disabled by user setting.");
+        return;
+    }
+
+    const lastFetchTime = localStorage.getItem('lastFetchTime');
+    if (!lastFetchTime) return;
+
+    // Convert the selected days into milliseconds for comparison
+    const threshold = intervalDays * 24 * 60 * 60 * 1000;
+    const timeSinceLastFetch = new Date() - new Date(lastFetchTime);
+
+    if (timeSinceLastFetch > threshold) {
+        console.log(`Data is stale (older than ${intervalDays} day/s), automatically refreshing...`);
+        showToast("Refreshing vehicle list...");
+        const creds = JSON.parse(savedCreds);
+        fetchVehicles(creds);
+    } else {
+        console.log("Data is fresh.");
+    }
 }
 
 // --- Core App Logic ---
@@ -429,6 +455,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Failed to parse cached vehicle data. Refetching.", e);
                 fetchVehicles(creds);
             }
+            const savedInterval = localStorage.getItem('refreshInterval') || '1';
+            refreshIntervalSelect.value = savedInterval;
+            refreshIntervalSelect.addEventListener('change', () => {
+                localStorage.setItem('refreshInterval', refreshIntervalSelect.value);
+            })
+            refreshDataIfStale();
         }
     }
     // --- Touch Tolerance & Feedback Handler ---
@@ -466,12 +498,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listen for browser back/forward navigation (phone's back button)
     window.addEventListener('popstate', (event) => {
         if (event.state && event.state.viewId) {
-            // Show the view from the history state, marking it as a history navigation
-            // so we don't create a new history entry.
             showView(event.state.viewId, event.state.data, true);
         } else {
-            // If there's no state (e.g., the user edited the URL manually), 
-            // default to the main list.
             showView('view-vehicle-list', {}, true);
         }
     });
@@ -579,7 +607,6 @@ vehicleList.addEventListener('mouseup', (event) => {
 
         const isAlreadyExpanded = card.classList.contains('expanded');
 
-        // Close any other card that might be open
         document.querySelectorAll('.vehicle-card.expanded').forEach(openCard => {
             openCard.classList.remove('expanded');
         });
@@ -618,7 +645,6 @@ odometerForm.addEventListener('submit', (event) => {
         tags: event.target.tags.value,
     };
     const type = 'odometer';
-    // Call the new function to handle the API call
     addRecord(vehicleId, record, type);
 });
 
@@ -632,7 +658,6 @@ backFromSaved.addEventListener('mouseup', () => {
     history.back();
 });
 
-// Use event delegation for the retry/delete buttons
 savedEntriesList.addEventListener('mouseup', async (event) => {
     const target = event.target;
     const card = target.closest('.saved-entry-card');
@@ -645,11 +670,11 @@ savedEntriesList.addEventListener('mouseup', async (event) => {
     if (target.classList.contains('retry-btn')) {
         target.textContent = 'Retrying...';
         target.disabled = true;
-        const success = await addRecord(entry.vehicleId, entry.record, entry.type, true); // Pass a flag to indicate it's a retry
+        const success = await addRecord(entry.vehicleId, entry.record, entry.type, true);
         if (success) {
-            savedEntries.splice(entryIndex, 1); // Remove from array
+            savedEntries.splice(entryIndex, 1);
             localStorage.setItem('savedEntries', JSON.stringify(savedEntries));
-            renderSavedEntries(); // Re-render the list
+            renderSavedEntries();
         } else {
             target.textContent = 'Retry';
             target.disabled = false;
@@ -694,6 +719,13 @@ document.querySelectorAll('.form-expander-header').forEach(header => {
     header.addEventListener('mouseup', () => {
         header.closest('.record-form').classList.toggle('expanded');
     });
+});
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        console.log("App brought into focus.");
+        refreshDataIfStale();
+    }
 });
 
 // Register the service worker
