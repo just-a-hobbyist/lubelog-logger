@@ -613,29 +613,17 @@ body.menu-open #side-menu {
 }
 
 /* --- Update Checker --- */
-/* #update-button {
+#update-button {
     background: none;
     border: none;
     color: #ecf0f1;
-    cursor: pointer;
+    /* cursor: pointer;
     font-family: inherit;
     font-size: 1.2rem;
     font-weight: 500;
     padding: 1rem;
-    text-align: left;
+    text-align: left; */
     flex-grow: 1;
-} */
-
-.update-checker {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-#update-status {
-    font-size: 0.8rem;
-    color: #9ca3af;
-    padding-right: 1rem;
 }
 
 #update-button.update-available {

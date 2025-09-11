@@ -25,7 +25,6 @@ const savedEntriesList = document.getElementById('saved-entries-list');
 const backFromSaved = document.getElementById('back-from-saved');
 const retryAllButton = document.getElementById('retry-all-button');
 const updateButton = document.getElementById('update-button');
-const updateStatus = document.getElementById('update-status');
 
 // Views
 const vehicleListView = document.getElementById('view-vehicle-list');
@@ -349,18 +348,30 @@ function closeSideMenu() {
  * Triggers the browser's built-in check for a new service worker.
  */
 function checkForUpdates() {
-    updateStatus.textContent = 'Checking...';
+    updateButton.textContent = 'Checking...';
+    updateButton.disabled = true; // Disable button during check
+
     navigator.serviceWorker.getRegistration()
         .then(reg => {
-            if (reg) {
-                reg.update();
-            } else {
-                updateStatus.textContent = 'Error';
+            if (!reg) {
+                throw new Error("Service worker not registered.");
             }
+            return reg.update();
+        })
+        .then(() => {
+            setTimeout(() => {
+                if (updateButton.textContent === 'Checking...') {
+                    updateButton.textContent = 'Check for Updates';
+                    showToast('No new updates found.');
+                }
+                updateButton.disabled = false;
+            }, 3000);
         })
         .catch(error => {
             console.error('Update check failed:', error);
-            updateStatus.textContent = 'Check failed';
+            updateButton.textContent = 'Check for Updates';
+            showToast('Update check Failed.', 'error');
+            updateButton.disabled = false;
         });
 }
 
@@ -447,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+    sessionStorage.removeItem('isRefreshing');
     document.body.classList.remove('loading');
     document.getElementById('fuel-date').valueAsDate = new Date();
     document.getElementById('odometer-date').valueAsDate = new Date();
@@ -691,20 +703,13 @@ if ('serviceWorker' in navigator) {
             .then(registration => {
                 console.log('ServiceWorker registration successful');
 
-                // This is the core of the update check. It listens for when a new
-                // service worker has been downloaded and is waiting to be activated.
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            // --- THIS IS THE FIX ---
-                            // The browser has found and installed an update.
-                            // Now we update the UI to inform the user.
-                            updateStatus.textContent = 'Update available!';
                             updateButton.textContent = 'Install Update';
                             updateButton.classList.add('update-available');
-                            
-                            // And we show the toast with the reload button.
+                            updateButton.disabled = false;
                             showUpdateNotification();
                         }
                     });
@@ -714,9 +719,9 @@ if ('serviceWorker' in navigator) {
                 console.log('ServiceWorker registration failed: ', error);
             });
 
-        // This listener fires when the new service worker has taken control.
-        // We reload the page to ensure the user sees the new content.
         navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (sessionStorage.getItem('isRefreshing')) return;
+            sessionStorage.setItem('isRefreshing', 'true');
             window.location.reload();
         });
     });
