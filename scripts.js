@@ -1,4 +1,4 @@
-// --- DOM Element Selection ---
+// --- App State and DOM Element Constants ---
 const loginModal = document.getElementById('login-modal');
 const loginForm = document.getElementById('login-form');
 const vehicleList = document.getElementById('vehicle-list');
@@ -13,19 +13,24 @@ const closeMenuButton = document.getElementById('close-menu-button');
 const addOdoOdoHeader = document.getElementById('odometer-form-title');
 const addOdoOdoEntry = document.getElementById('odometer-odometer');
 const addFuelOdoEntry = document.getElementById('fuel-odometer');
-
-// Views
-const vehicleListView = document.getElementById('view-vehicle-list');
-const addFuelView = document.getElementById('view-add-fuel');
-const addOdometerView = document.getElementById('view-add-odometer');
 const fuelForm = document.getElementById('add-fuel-form');
 const odometerForm = document.getElementById('add-odometer-form');
 const fuelFormTitle = document.getElementById('fuel-form-title');
 const odometerFormTitle = document.getElementById('odometer-form-title');
 const backFromFuel = document.getElementById('back-from-fuel');
 const backFromOdometer = document.getElementById('back-from-odometer');
+const viewSavedEntries = document.getElementById('view-saved-entries');
+const savedEntriesButton = document.getElementById('saved-entries-button');
+const savedEntriesList = document.getElementById('saved-entries-list');
+const backFromSaved = document.getElementById('back-from-saved');
+const retryAllButton = document.getElementById('retry-all-button');
+const updateButton = document.getElementById('update-button');
+const refreshIntervalSelect = document.getElementById('refresh-interval-select');
 
-
+// Views
+const vehicleListView = document.getElementById('view-vehicle-list');
+const addFuelView = document.getElementById('view-add-fuel');
+const addOdometerView = document.getElementById('view-add-odometer');
 
 // App State
 let vehiclesCache = []; // In-memory cache for vehicle data
@@ -35,12 +40,19 @@ let toastTimeout; // To manage toast timer
  * Manages which view is currently visible.
  * @param {string} viewId - The id of the view to show.
  * @param {object} [data] - Optional data for the view.
+ * @param {boolean} isHistoryNavigation - Whether or not the user is trying to navigate the browser history.
  */
-function showView(viewId, data) {
+function showView(viewId, data, isHistoryNavigation = false) {
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     const viewToShow = document.getElementById(viewId);
     if (viewToShow) {
         viewToShow.classList.add('active');
+    }
+
+    // Add a new entry to the browser's history unless we're navigating via the back button
+    if (!isHistoryNavigation) {
+        const url = `#${viewId}`;
+        history.pushState({ viewId, data }, '', url);
     }
 
     if (viewId === 'view-add-fuel') {
@@ -48,6 +60,8 @@ function showView(viewId, data) {
         if (vehicle) {
             fuelFormTitle.textContent = `Add Fuel for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
             fuelForm.dataset.vehicleId = data.vehicleId;
+            if (vehicle.vehicleData.odometerOptional === true) addFuelOdoEntry.required = false;
+            else addFuelOdoEntry.required = true;
         }
     } else if (viewId === 'view-add-odometer') {
         const vehicle = vehiclesCache.find(v => v.vehicleData.id === data.vehicleId);
@@ -65,7 +79,14 @@ function showView(viewId, data) {
  */
 function createVehicleCard(vehicle) {
     const vehicleName = `${vehicle.vehicleData.year} ${vehicle.vehicleData.make} ${vehicle.vehicleData.model}`;
-    const licensePlate = vehicle.vehicleData.licensePlate || 'No Plate';
+    let vehicleIdentifier;
+    if (vehicle.vehicleData.vehicleIdentifier !== "LicensePlate") {
+        const identBy = vehicle.vehicleData.vehicleIdentifier;
+        vehicleIdentifier = vehicle.vehicleData.extraFields.map(fld => {
+            if (fld.name === identBy) return fld.value
+        });
+    } else vehicleIdentifier = vehicle.vehicleData.licensePlate || 'No Plate';
+
     // Use optional chaining to safely get the odometer reading.
     const latestOdometer = vehicle.lastReportedOdometer?.toString() || 'N/A';
     const hrsOdo = vehicle.vehicleData.useHours ? "Engine Hours" : "Odometer";
@@ -75,11 +96,9 @@ function createVehicleCard(vehicle) {
             <div class="card-header">
                 <div>
                     <h2>${vehicleName}</h2>
-                    <p>${licensePlate}</p>
+                    <p>${vehicleIdentifier}</p>
                 </div>
-                <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
+                <img src="./img/chevron-icon.svg" alt="Expand" class="chevron-icon">
             </div>
             <div class="card-details">
                 <div class="odometer-info">
@@ -112,11 +131,57 @@ function renderVehicles(vehicles) {
 }
 
 /**
+ * Renders the list of saved (offline) entries into the DOM.
+ */
+function renderSavedEntries(entriesToRender) {
+    const savedEntries = entriesToRender 
+        ? entriesToRender 
+        : JSON.parse(localStorage.getItem('savedEntries')) || [];
+    if (savedEntries.length === 0) {
+        savedEntriesList.innerHTML = '<li><p class="no-vehicles-message">No saved entries.</p></li>';
+        retryAllButton.style.display = 'none'; // Hide button if no entries
+        return;
+    }
+
+    retryAllButton.style.display = 'block'; // Show button if there are entries
+    savedEntriesList.innerHTML = savedEntries.map((entry, index) => {
+        const vehicle = vehiclesCache.find(v => v.vehicleData.id === entry.vehicleId);
+        const vehicleName = vehicle ? `${vehicle.vehicleData.year} ${vehicle.vehicleData.make} ${vehicle.vehicleData.model}` : 'Unknown Vehicle';
+        const entryType = entry.type.charAt(0).toUpperCase() + entry.type.slice(1);
+        const timestamp = new Date(entry.timestamp).toLocaleString();
+
+        return `
+            <li class="saved-entry-card" data-entry-index="${index}">
+                <p><strong>Vehicle:</strong> ${vehicleName}</p>
+                <p><strong>Type:</strong> ${entryType} Record</p>
+                <p class="timestamp">Saved: ${timestamp}</p>
+                <div class="saved-entry-actions">
+                    <button class="action-btn retry-btn" data-touch-feedback>Retry</button>
+                    <button class="action-btn delete-btn" data-touch-feedback>Delete</button>
+                </div>
+            </li>
+        `;
+    }).join('');
+}
+
+/**
+ * Saves a failed record submission to local storage.
+ * @param {object} record - The record that failed to submit.
+ */
+function saveRecordOffline(record) {
+    const savedEntries = JSON.parse(localStorage.getItem('savedEntries')) || [];
+    record.timestamp = new Date().toISOString(); // Add a timestamp
+    savedEntries.push(record);
+    localStorage.setItem('savedEntries', JSON.stringify(savedEntries));
+    showToast('Network offline. Record saved for later.', 'error');
+}
+
+/**
  * Fetches the list of vehicles from the LubeLogger API.
  * @param {object} credentials - The user's credentials object.
  */
 async function fetchVehicles(credentials) {
-    console.log("Attempting to fetch vehicles from:", credentials.domain);
+    console.log("Attempting to fetch vehicles");
 
     const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
     const headers = {
@@ -134,9 +199,9 @@ async function fetchVehicles(credentials) {
         }
 
         const vehicles = await response.json();
-        console.log("Successfully fetched vehicles:", vehicles);
-        
+        console.log("Successfully fetched vehicles");
         localStorage.setItem("vehicles", JSON.stringify(vehicles));
+        localStorage.setItem('lastFetchTime', new Date().toISOString());
         renderVehicles(vehicles);
         if (toastTimeout && toast.textContent === "Refreshing Vehicle List...") {
             clearTimeout(toastTimeout);
@@ -155,26 +220,26 @@ async function fetchVehicles(credentials) {
  * Displays a toast notification.
  * @param {string} message - The message to display.
  * @param {string} [type='success'] - The type of toast ('success' or 'error').
+ * @param {boolean} [autoHide = true] - Indicates whether the toast will autohide after given time period.
  */
-function showToast(message, type = 'success') {
-    // Clear any existing timer to prevent the toast from disappearing early
-    if (toastTimeout) {
-        clearTimeout(toastTimeout);
+function showToast(content, type = 'success', autoHide = true) {
+    if (toastTimeout) clearTimeout(toastTimeout);
+
+    toast.innerHTML = ''; 
+
+    if (typeof content === 'string') {
+        toast.textContent = content;
+    } else {
+        toast.appendChild(content); // Append the element if it's not a string
     }
-
-    toast.textContent = message;
-
-    // Apply the correct style
-    toast.className = 'toast'; // Reset classes
-    toast.classList.add(type); // Add 'success' or 'error'
-
-    // Make it visible
+    
+    toast.className = 'toast';
+    toast.classList.add(type);
     toast.classList.add('active');
 
-    // Set a timer to hide it after 3 seconds
-    toastTimeout = setTimeout(() => {
-        toast.classList.remove('active');
-    }, 3000);
+    if (autoHide) {
+        toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+    }
 }
 
 /**
@@ -183,10 +248,10 @@ function showToast(message, type = 'success') {
  * @param {object} record - The gas record data.
  * @param {string} type - The type ['gas' or 'odometer'] of record to submit
  */
-async function addRecord(vehicleId, record, type) {
+async function addRecord(vehicleId, record, type, isRetry = false) {
     let formType;
     let dateBox;
-    let successMsg = " saved successfully!";
+    let successMsg = " record saved successfully!";
     switch (type) {
         case 'gas':
             formType = fuelForm;
@@ -205,10 +270,10 @@ async function addRecord(vehicleId, record, type) {
     const submitButton = formType.querySelector('.save-btn');
     const originalButtonText = submitButton.textContent;
 
-    // Disable button and show loading state
-    submitButton.disabled = true;
-    submitButton.textContent = 'Saving...';
-
+    if (!isRetry) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Saving...';
+    }
     try {
         const savedCreds = localStorage.getItem('lubeLoggerCreds');
         if (!savedCreds) {
@@ -219,11 +284,10 @@ async function addRecord(vehicleId, record, type) {
         const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
         const formData = new URLSearchParams();
         for (const key in record) {
-            if (record[key]) {
+            if (record[key] != null && record[key] !== '') {
                 formData.append(key, record[key]);
             }
         }
-        console.log(formData.toString());
 
         const response = await fetch(`${credentials.domain}/api/vehicle/${type}records/add?vehicleId=${vehicleId}`, {
             method: 'POST',
@@ -240,20 +304,132 @@ async function addRecord(vehicleId, record, type) {
         }
 
         const result = await response.json();
-        console.log("Successfully added record:", result);
+        console.log("Successfully added record");
         showToast(successMsg);
-        submitButton.textContent = "Refreshing Home Page";
-        await fetchVehicles(credentials);
-        showView('view-vehicle-list');
+        if (!isRetry) {
+            submitButton.textContent = "Refreshing Home Page";
+            await fetchVehicles(credentials);
+            history.back();
+        }
         formType.reset();
         dateBox.valueAsDate = new Date();
+        return true;
     } catch (error) {
-        console.error(`Failed to add ${type} record: ${error}`);
-        showToast(`Error: ${error.message}`, 'error');
+        console.error(`Failed to add ${type} record:`, error);
+
+        // Check for a network error specifically
+        if (error instanceof TypeError && error.message === 'Failed to fetch' && !isRetry) {
+            saveRecordOffline({ vehicleId, record, type });
+            showView('view-vehicle-list'); // Go back to the list after saving
+            formType.reset();
+            dateBox.valueAsDate = new Date();        
+        } else {
+            showToast(`Error: ${error.message}`, 'error');
+        }
+        return false;
     } finally {
-        // Re-enable the button and restore original text, regardless of success or failure
-        submitButton.disabled = false;
-        submitButton.textContent = originalButtonText;
+        if (!isRetry) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
+    }
+}
+
+/**
+ * Closes the Side Menu
+ */
+function closeSideMenu() {
+    document.body.classList.remove('menu-open');
+}
+
+/**
+ * Triggers the browser's built-in check for a new service worker.
+ */
+function checkForUpdates() {
+    updateButton.textContent = 'Checking...';
+    updateButton.disabled = true;
+    navigator.serviceWorker.getRegistration()
+        .then(reg => {
+            if (!reg) {
+                throw new Error("Service worker not registered.");
+            }
+            return reg.update();
+        })
+        .then(() => {
+            setTimeout(() => {
+                if (updateButton.textContent === 'Checking...') {
+                    updateButton.textContent = 'Check for Updates';
+                    showToast('No new updates found.');
+                }
+                updateButton.disabled = false;
+            }, 3000);
+        })
+        .catch(error => {
+            console.error('Update check failed:', error);
+            updateButton.textContent = 'Check for Updates';
+            showToast('Update check Failed.', 'error');
+            updateButton.disabled = false;
+        });
+}
+
+/**
+ * Shows a custom toast notification prompting the user to reload to apply an update.
+ */
+function showUpdateNotification() {
+    const toastContent = document.createElement('div');
+    toastContent.style.display = 'flex';
+    toastContent.style.alignItems = 'center';
+    toastContent.textContent = "A new version is ready! ";
+
+    const reloadButton = document.createElement('button');
+    reloadButton.textContent = 'Reload';
+    reloadButton.style.marginLeft = '1rem';
+    reloadButton.style.border = '1px solid white';
+    reloadButton.style.background = 'transparent';
+    reloadButton.style.color = 'white';
+    reloadButton.style.borderRadius = '5px';
+    reloadButton.style.padding = '5px 10px';
+    reloadButton.style.cursor = 'pointer';
+
+    reloadButton.onclick = () => {
+        // Find the waiting service worker and tell it to take over.
+        navigator.serviceWorker.getRegistration().then(reg => {
+            reg.waiting.postMessage({ action: 'skipWaiting' });
+        });
+    };
+
+    toastContent.appendChild(reloadButton);
+    showToast(toastContent, 'success', false);
+}
+
+/**
+ * Checks if cached vehicle data is older than the user-defined threshold and refreshes if needed.
+ */
+function refreshDataIfStale() {
+    const savedCreds = localStorage.getItem('lubeLoggerCreds');
+    if (!savedCreds) return;
+
+    const intervalDays = parseInt(localStorage.getItem('refreshInterval') || '1', 10);
+
+    if (intervalDays === -1) {
+        console.log("Auto-refresh is disabled by user setting.");
+        return;
+    }
+
+    const lastFetchTime = localStorage.getItem('lastFetchTime');
+    if (!lastFetchTime) return;
+
+    // Convert the selected days into milliseconds for comparison
+    const threshold = intervalDays * 24 * 60 * 60 * 1000;
+    const timeSinceLastFetch = new Date() - new Date(lastFetchTime);
+
+    if (timeSinceLastFetch > threshold) {
+        console.log(`Data is stale (older than ${intervalDays} day/s), automatically refreshing...`);
+        showToast("Refreshing vehicle list...");
+        const creds = JSON.parse(savedCreds);
+        fetchVehicles(creds);
+    } else {
+        console.log("Data is fresh.");
     }
 }
 
@@ -279,6 +455,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Failed to parse cached vehicle data. Refetching.", e);
                 fetchVehicles(creds);
             }
+            const savedInterval = localStorage.getItem('refreshInterval') || '1';
+            refreshIntervalSelect.value = savedInterval;
+            refreshIntervalSelect.addEventListener('change', () => {
+                localStorage.setItem('refreshInterval', refreshIntervalSelect.value);
+            })
+            refreshDataIfStale();
         }
     }
     // --- Touch Tolerance & Feedback Handler ---
@@ -308,9 +490,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+    sessionStorage.removeItem('isRefreshing');
     document.body.classList.remove('loading');
     document.getElementById('fuel-date').valueAsDate = new Date();
     document.getElementById('odometer-date').valueAsDate = new Date();
+
+    // Listen for browser back/forward navigation (phone's back button)
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.viewId) {
+            showView(event.state.viewId, event.state.data, true);
+        } else {
+            showView('view-vehicle-list', {}, true);
+        }
+    });
 });
 
 // --- Event Listeners ---
@@ -349,33 +541,37 @@ refreshButton.addEventListener('mouseup', () => {
     }
 });
 
-backFromFuel.addEventListener('click', () => {
-    showView('view-vehicle-list');
+backFromFuel.addEventListener('mouseup', () => {
+    history.back();
 });
-backFromOdometer.addEventListener('click', () => {
-    showView('view-vehicle-list');
+backFromOdometer.addEventListener('mouseup', () => {
+    history.back();
+});
+
+updateButton.addEventListener('click', () => {
+    checkForUpdates();
 });
 
 menuButton.addEventListener('mouseup', () => {
     if (document.body.classList.contains('menu-open')){
-        document.body.classList.remove('menu-open');
+        closeSideMenu();
     } else {
         document.body.classList.add('menu-open');
     }
 });
 
 menuOverlay.addEventListener('mouseup', () => {
-    document.body.classList.remove('menu-open');
+    closeSideMenu();
 });
 
 closeMenuButton.addEventListener('mouseup', () => {
-    document.body.classList.remove('menu-open');
+    closeSideMenu();
 });
 
 logoutButton.addEventListener('mouseup', () => {
     localStorage.removeItem('lubeLoggerCreds');
     localStorage.removeItem('vehicles');
-    document.body.classList.remove('menu-open');
+    closeSideMenu();
     vehicleList.innerHTML = '';
     showView('view-vehicle-list');
     loginModal.classList.remove('hidden');
@@ -399,9 +595,8 @@ vehicleList.addEventListener('mouseup', (event) => {
             else sp.innerText = "Engine Hours";
         })
         
-        console.log(`Action '${action}' triggered for vehicle ID: ${vehicleId}`);
         showView(action, { "vehicleId": parseInt(vehicleId, 10) })
-        return; // We've handled the click, so we're done.
+        return;
     }
 
     // Case 2: The card header was clicked to expand/collapse
@@ -412,12 +607,10 @@ vehicleList.addEventListener('mouseup', (event) => {
 
         const isAlreadyExpanded = card.classList.contains('expanded');
 
-        // Close any other card that might be open
         document.querySelectorAll('.vehicle-card.expanded').forEach(openCard => {
             openCard.classList.remove('expanded');
         });
 
-        // If the card we clicked wasn't already open, expand it.
         if (!isAlreadyExpanded) {
             card.classList.add('expanded');
         }
@@ -429,7 +622,7 @@ fuelForm.addEventListener('submit', (event) => {
     const vehicleId = parseInt(fuelForm.dataset.vehicleId, 10);
     const record = {
         date: event.target.date.value,
-        odometer: event.target.odometer.value,
+        odometer: event.target.odometer.value || 0,
         fuelConsumed: event.target.fuelConsumed.value,
         cost: event.target.cost.value,
         isFillToFull: event.target.isFillToFull.checked,
@@ -438,7 +631,7 @@ fuelForm.addEventListener('submit', (event) => {
         tags: event.target.tags.value,
     };
     const type = 'gas';
-    // Call the new function to handle the API call
+    console.log(record)
     addRecord(vehicleId, record, type);
 });
 
@@ -452,8 +645,74 @@ odometerForm.addEventListener('submit', (event) => {
         tags: event.target.tags.value,
     };
     const type = 'odometer';
-    // Call the new function to handle the API call
     addRecord(vehicleId, record, type);
+});
+
+savedEntriesButton.addEventListener('mouseup', () => {
+    closeSideMenu();
+    renderSavedEntries();
+    showView('view-saved-entries');
+});
+
+backFromSaved.addEventListener('mouseup', () => {
+    history.back();
+});
+
+savedEntriesList.addEventListener('mouseup', async (event) => {
+    const target = event.target;
+    const card = target.closest('.saved-entry-card');
+    if (!card) return;
+
+    const entryIndex = parseInt(card.dataset.entryIndex, 10);
+    let savedEntries = JSON.parse(localStorage.getItem('savedEntries')) || [];
+    const entry = savedEntries[entryIndex];
+
+    if (target.classList.contains('retry-btn')) {
+        target.textContent = 'Retrying...';
+        target.disabled = true;
+        const success = await addRecord(entry.vehicleId, entry.record, entry.type, true);
+        if (success) {
+            savedEntries.splice(entryIndex, 1);
+            localStorage.setItem('savedEntries', JSON.stringify(savedEntries));
+            renderSavedEntries();
+        } else {
+            target.textContent = 'Retry';
+            target.disabled = false;
+        }
+    }
+
+    if (target.classList.contains('delete-btn')) {
+        if (confirm('Are you sure you want to delete this saved entry?')) {
+            savedEntries.splice(entryIndex, 1);
+            localStorage.setItem('savedEntries', JSON.stringify(savedEntries));
+            renderSavedEntries();
+            showToast('Entry deleted.');
+        }
+    }
+});
+
+retryAllButton.addEventListener('mouseup', async () => {
+    let savedEntries = JSON.parse(localStorage.getItem('savedEntries')) || [];
+    if (savedEntries.length === 0) return;
+    const entriesToRender = savedEntries.map(e => e);
+
+    showToast(`Attempting to submit ${savedEntries.length} saved entries...`);
+    let remainingEntries = [];
+    
+    for (const entry of savedEntries) {
+        const success = await addRecord(entry.vehicleId, entry.record, entry.type, true);
+        if (!success) {
+            remainingEntries.push(entry); // Keep it if it failed
+        } else {
+            const entryIndex = savedEntries.findIndex(e => e.timestamp === entry.timestamp);
+            entriesToRender.splice(entryIndex, 1);
+            renderSavedEntries(entriesToRender);
+        }
+    }
+
+    localStorage.setItem('savedEntries', JSON.stringify(remainingEntries));
+    renderSavedEntries(); // Re-render with any remaining entries
+    showToast(`Finished. ${savedEntries.length - remainingEntries.length} entries submitted.`);
 });
 
 document.querySelectorAll('.form-expander-header').forEach(header => {
@@ -462,16 +721,41 @@ document.querySelectorAll('.form-expander-header').forEach(header => {
     });
 });
 
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        console.log("App brought into focus.");
+        refreshDataIfStale();
+    }
+});
+
 // Register the service worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
             .then(registration => {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                console.log('ServiceWorker registration successful');
+
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            updateButton.textContent = 'Install Update';
+                            updateButton.classList.add('update-available');
+                            updateButton.disabled = false;
+                            showUpdateNotification();
+                        }
+                    });
+                });
             })
             .catch(error => {
                 console.log('ServiceWorker registration failed: ', error);
             });
+
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (sessionStorage.getItem('isRefreshing')) return;
+            sessionStorage.setItem('isRefreshing', 'true');
+            window.location.reload();
+        });
     });
 }
 

@@ -1,7 +1,5 @@
-// A name for our cache
 const CACHE_NAME = 'lubelogger-pwa-cache-v1.0.6';
 
-// A list of all the essential files our app needs to run offline
 const urlsToCache = [
     './',
     './index.html',
@@ -18,7 +16,13 @@ const urlsToCache = [
     './icons/favicon-16x16.png',
     './icons/favicon-32x32.png',
     './icons/favicon.ico',
-    './icons/icon.svg'
+    './icons/icon.svg',
+    './img/back-btn.svg',
+    './img/chevron-icon.svg',
+    './img/close-btn.svg',
+    './img/menu-btn.svg',
+    './img/refresh-btn.svg',
+    './version.json'
 ];
 
 // --- Event Listeners ---
@@ -29,10 +33,18 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then((cache) => {
                 console.log('Service Worker: Caching app shell');
-                return cache.addAll(urlsToCache);
+                const cachePromises = urlsToCache.map(url => {
+                    return fetch(url, { cache: 'reload' }) // Use cache: 'reload' to bypass browser cache
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Failed to fetch ${url}: ${response.status}`);
+                            }
+                            return cache.put(url, response);
+                        });
+                });
+                return Promise.all(cachePromises);
             })
             .catch((error) => {
-                // This is where the error you're seeing originates
                 console.error('Service Worker: Caching failed', error);
             })
     );
@@ -62,4 +74,10 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
