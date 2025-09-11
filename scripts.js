@@ -272,9 +272,10 @@ async function addRecord(vehicleId, record, type, isRetry = false) {
     const originalButtonText = submitButton.textContent;
 
     // Disable button and show loading state
-    submitButton.disabled = true;
-    submitButton.textContent = 'Saving...';
-
+    if (!isRetry) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Saving...';
+    }
     try {
         const savedCreds = localStorage.getItem('lubeLoggerCreds');
         if (!savedCreds) {

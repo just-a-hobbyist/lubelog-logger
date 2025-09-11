@@ -287,6 +287,8 @@ main h2 {
     cursor: pointer;
     font-weight: 500;
     color: #d1d5db;
+    transition: background-color 0.3s ease-out; 
+
 }
 
 .form-details {
@@ -647,7 +649,9 @@ body.menu-open #side-menu {
 #login-button,
 .action-btn,
 .close-menu-btn,
-.toggle-switch {
+.toggle-switch,
+.back-button,
+.form-expander-header {
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -657,7 +661,8 @@ body.menu-open #side-menu {
 #login-button:active,
 .action-btn:active,
 .back-button:active,
-.close-menu-btn:active {
+.close-menu-btn:active,
+.form-expander-header:active {
     background: rgba(255, 255, 255, 0.35) !important;
     transition-duration: 0s !important;
 }
