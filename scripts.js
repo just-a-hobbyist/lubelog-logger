@@ -1,4 +1,4 @@
-// --- DOM Element Selection ---
+// --- App State and DOM Element Constants ---
 const loginModal = document.getElementById('login-modal');
 const loginForm = document.getElementById('login-form');
 const vehicleList = document.getElementById('vehicle-list');
@@ -24,14 +24,13 @@ const savedEntriesButton = document.getElementById('saved-entries-button');
 const savedEntriesList = document.getElementById('saved-entries-list');
 const backFromSaved = document.getElementById('back-from-saved');
 const retryAllButton = document.getElementById('retry-all-button');
+const updateButton = document.getElementById('update-button');
+const updateStatus = document.getElementById('update-status');
 
 // Views
 const vehicleListView = document.getElementById('view-vehicle-list');
 const addFuelView = document.getElementById('view-add-fuel');
 const addOdometerView = document.getElementById('view-add-odometer');
-
-
-
 
 // App State
 let vehiclesCache = []; // In-memory cache for vehicle data
@@ -221,26 +220,27 @@ async function fetchVehicles(credentials) {
  * Displays a toast notification.
  * @param {string} message - The message to display.
  * @param {string} [type='success'] - The type of toast ('success' or 'error').
+ * @param {boolean} [autoHide = true] - Indicates whether the toast will autohide after given time period.
  */
-function showToast(message, type = 'success') {
-    // Clear any existing timer to prevent the toast from disappearing early
-    if (toastTimeout) {
-        clearTimeout(toastTimeout);
+function showToast(content, type = 'success', autoHide = true) {
+    if (toastTimeout) clearTimeout(toastTimeout);
+
+    // Clear previous content
+    toast.innerHTML = ''; 
+
+    if (typeof content === 'string') {
+        toast.textContent = content;
+    } else {
+        toast.appendChild(content); // Append the element if it's not a string
     }
-
-    toast.textContent = message;
-
-    // Apply the correct style
-    toast.className = 'toast'; // Reset classes
-    toast.classList.add(type); // Add 'success' or 'error'
-
-    // Make it visible
+    
+    toast.className = 'toast';
+    toast.classList.add(type);
     toast.classList.add('active');
 
-    // Set a timer to hide it after 3 seconds
-    toastTimeout = setTimeout(() => {
-        toast.classList.remove('active');
-    }, 3000);
+    if (autoHide) {
+        toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+    }
 }
 
 /**
@@ -343,6 +343,57 @@ async function addRecord(vehicleId, record, type, isRetry = false) {
  */
 function closeSideMenu() {
     document.body.classList.remove('menu-open');
+}
+
+/**
+ * Triggers the browser's built-in check for a new service worker.
+ */
+function checkForUpdates() {
+    updateStatus.textContent = 'Checking...';
+    navigator.serviceWorker.getRegistration()
+        .then(reg => {
+            if (reg) {
+                reg.update();
+            } else {
+                updateStatus.textContent = 'Error';
+            }
+        })
+        .catch(error => {
+            console.error('Update check failed:', error);
+            updateStatus.textContent = 'Check failed';
+        });
+}
+
+/**
+ * Shows a custom toast notification prompting the user to reload to apply an update.
+ */
+function showUpdateNotification() {
+    // We'll reuse our toast function for this!
+    const toastContent = document.createElement('div');
+    toastContent.style.display = 'flex';
+    toastContent.style.alignItems = 'center';
+    toastContent.textContent = "A new version is ready! ";
+
+    const reloadButton = document.createElement('button');
+    reloadButton.textContent = 'Reload';
+    // Basic styling for the button inside the toast
+    reloadButton.style.marginLeft = '1rem';
+    reloadButton.style.border = '1px solid white';
+    reloadButton.style.background = 'transparent';
+    reloadButton.style.color = 'white';
+    reloadButton.style.borderRadius = '5px';
+    reloadButton.style.padding = '5px 10px';
+    reloadButton.style.cursor = 'pointer';
+
+    reloadButton.onclick = () => {
+        // Find the waiting service worker and tell it to take over.
+        navigator.serviceWorker.getRegistration().then(reg => {
+            reg.waiting.postMessage({ action: 'skipWaiting' });
+        });
+    };
+
+    toastContent.appendChild(reloadButton);
+    showToast(toastContent, 'success', false); // false = don't auto-hide
 }
 
 // --- Core App Logic ---
@@ -455,6 +506,10 @@ backFromFuel.addEventListener('mouseup', () => {
 });
 backFromOdometer.addEventListener('mouseup', () => {
     history.back();
+});
+
+updateButton.addEventListener('click', () => {
+    checkForUpdates();
 });
 
 menuButton.addEventListener('mouseup', () => {
@@ -634,11 +689,36 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
             .then(registration => {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                console.log('ServiceWorker registration successful');
+
+                // This is the core of the update check. It listens for when a new
+                // service worker has been downloaded and is waiting to be activated.
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // --- THIS IS THE FIX ---
+                            // The browser has found and installed an update.
+                            // Now we update the UI to inform the user.
+                            updateStatus.textContent = 'Update available!';
+                            updateButton.textContent = 'Install Update';
+                            updateButton.classList.add('update-available');
+                            
+                            // And we show the toast with the reload button.
+                            showUpdateNotification();
+                        }
+                    });
+                });
             })
             .catch(error => {
                 console.log('ServiceWorker registration failed: ', error);
             });
+
+        // This listener fires when the new service worker has taken control.
+        // We reload the page to ensure the user sees the new content.
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+        });
     });
 }
 

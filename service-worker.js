@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lubelogger-pwa-cache-v1.0.8';
+const CACHE_NAME = 'lubelogger-pwa-cache-v1.0.6';
 
 const urlsToCache = [
     './',
@@ -20,9 +20,9 @@ const urlsToCache = [
     './img/back-btn.svg',
     './img/chevron-icon.svg',
     './img/close-btn.svg',
-    './img/logo.svg',
     './img/menu-btn.svg',
-    './img/refresh-btn.svg'
+    './img/refresh-btn.svg',
+    './version.json'
 ];
 
 // --- Event Listeners ---
@@ -33,7 +33,16 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then((cache) => {
                 console.log('Service Worker: Caching app shell');
-                return cache.addAll(urlsToCache);
+                const cachePromises = urlsToCache.map(url => {
+                    return fetch(url, { cache: 'reload' }) // Use cache: 'reload' to bypass browser cache
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Failed to fetch ${url}: ${response.status}`);
+                            }
+                            return cache.put(url, response);
+                        });
+                });
+                return Promise.all(cachePromises);
             })
             .catch((error) => {
                 console.error('Service Worker: Caching failed', error);
@@ -65,4 +74,10 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
