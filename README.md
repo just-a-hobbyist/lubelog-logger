@@ -105,12 +105,13 @@ Tap the "Back to Vehicles" button to go back to your vehicle list if you don't w
   
 To log out, tap the hamburger icon in the top right, then tap "Logout".  
 
-<img src="/docs/images/menu-bar.png" alt="Menu bar screenshot" width="350"/> 
+<img src="docs/images/menu-bar.png" alt="Menu bar screenshot" width="350"/> 
 
 You can also tap "Saved Entries" to view any entries which failed due to network issues. From that menu you can retry them individually or all together, or delete them entirely. 
 
 This is also where you can check for updates to the app itself. The process is as follows: 
-TODO 1. This needs work and updating
+TODO 
+1. This needs work and updating
 
 You can also set the auto-refresh interval. The default is 1 day. This is how often the app will refresh your vehicle list automatically when you open it. You may set it to 1, 3, or 7 days, or to never auto update. 
   

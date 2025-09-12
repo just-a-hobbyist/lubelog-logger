@@ -343,33 +343,60 @@ function closeSideMenu() {
 }
 
 /**
- * Triggers the browser's built-in check for a new service worker.
+ * Compares x.y.z formatted update versions
+ * @param {string} cur - The version of the current app
+ * @param {string} upd - The version of the update
+ * @returns {boolean} - True if upd is higher version than cur
  */
-function checkForUpdates() {
+function compareVersions(cur, upd) {
+    const current = cur.split('.').map(Number);
+    const updated = upd.split('.').map(Number);
+    return current.every((part, i) => {
+        if (typeof part !== 'number' || typeof updated[i] !== 'number') throw new Error('Version number error:', cur, upd);
+        console.log(part);
+        return part <= updated[i]
+    });
+}
+
+/**
+ * Checks for updates, first against the central repo, then the local service worker.
+ */
+async function checkForUpdates() {
     updateButton.textContent = 'Checking...';
     updateButton.disabled = true;
-    navigator.serviceWorker.getRegistration()
-        .then(reg => {
-            if (!reg) {
-                throw new Error("Service worker not registered.");
-            }
-            return reg.update();
-        })
-        .then(() => {
-            setTimeout(() => {
-                if (updateButton.textContent === 'Checking...') {
-                    updateButton.textContent = 'Check for Updates';
-                    showToast('No new updates found.');
-                }
-                updateButton.disabled = false;
-            }, 3000);
-        })
-        .catch(error => {
-            console.error('Update check failed:', error);
+
+    try {
+        // Step 1: Get current version
+        const localVersionResponse = await fetch('./version.json');
+        const localVersion = await localVersionResponse.json();
+        const currentVersion = localVersion.version;
+
+        // Step 2: Check the official GitHub repo to see if a new version exists.
+        const response = await fetch('https://just-a-hobbyist.github.io/lubelog-logger/version.json?t=' + new Date().getTime());
+        if (!response.ok) throw new Error('Could not contact update server.');
+        const remoteServerVersion = await response.json();
+
+        // Step 3: Compare the official version with the version of the code the user is running.
+        if (compareVersions(currentVersion, remoteServerVersion.version)) {
+            // If a new version exists, inform the user they need to update their server.
+            updateButton.textContent = 'Update Available!';
+            updateButton.classList.add('update-available');
+            showToast(`Version ${remoteServerVersion.version} is available! Please update your server via 'git pull'.`);
+        } else {
+            // Step 4: If versions match, the user has the latest code.
+            // Now, we can safely check if their service worker is installed correctly.
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (reg) await reg.update();
             updateButton.textContent = 'Check for Updates';
-            showToast('Update check Failed.', 'error');
-            updateButton.disabled = false;
-        });
+            showToast('You are on the latest version.');
+        }
+    } catch (error) {
+        console.error('Update check failed:', error);
+        updateButton.textContent = 'Check for Updates';
+        showToast('Update check failed.', 'error');
+    } finally {
+        updateButton.disabled = false;
+    }
 }
 
 /**
