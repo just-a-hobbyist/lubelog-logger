@@ -349,12 +349,27 @@ function closeSideMenu() {
  * @returns {boolean} - True if upd is higher version than cur
  */
 function compareVersions(cur, upd) {
-    const current = cur.split('.').map(Number);
-    const updated = upd.split('.').map(Number);
-    return current.every((part, i) => {
-        if (typeof part !== 'number' || typeof updated[i] !== 'number') throw new Error('Version number error:', cur, upd);
-        console.log(part);
-        return part <= updated[i]
+    const versionError = new Error(`Version error: either ${cur} or ${upd} is an invalid version number!`);
+    const current = cur.split('.').filter(Boolean).map(Number);
+    const updated = upd.split('.').filter(Boolean).map(Number);
+    if (current.length !== updated.length) {
+        console.error(versionError);
+        showToast('Version error, please contact the developer!', 'error');
+        return false;
+    }
+
+    let outOfOrder = false;
+    return current.some((part, i) => {
+        if (isNaN(part) || isNaN(updated[i])) {
+            console.error(versionError);
+            showToast('Version error, please contact the developer!', 'error');
+        }
+        if (outOfOrder) return false;
+        if (part > updated[i]) {
+            outOfOrder = true;
+            return false;
+        }
+        return (updated[i] > part);
     });
 }
 
