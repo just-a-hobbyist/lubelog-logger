@@ -15,6 +15,8 @@
     --border-color: #4a6572;
     --shadow-color: rgba(0, 0, 0, 0.3);
     --action-button: #4a6572;
+    --button-hover: ;
+    --slider-bg: #3498db;
 }
 
 body.theme-light {
@@ -32,6 +34,8 @@ body.theme-light {
     --border-color: #e5e7eb;
     --shadow-color: rgba(0, 0, 0, 0.1);
     --action-button: #909090;
+    --button-hover: ;
+    --slider-bg: #909090;
 }
 
 body.theme-blue {
@@ -49,12 +53,14 @@ body.theme-blue {
     --border-color: #0d1b2a;
     --shadow-color: rgba(0, 0, 0, 0.4);
     --action-button: #415a77;
+    --button-hover: ;
+    --slider-bg: #415a77;
 }
 
 body.theme-og-dark {
     --bg-primary: #212529;
     --bg-secondary: #343a40;
-    --bg-tertiary: #2b3035;
+    --bg-tertiary: #454c53;
     --bg-interactive: rgba(255, 255, 255, 0.15);
     --bg-overlay: rgba(255, 255, 255, 0.05);
     --text-primary: #e0e1dd;
@@ -66,6 +72,8 @@ body.theme-og-dark {
     --border-color: rgba(255, 255, 255, 0.15);
     --shadow-color: rgba(0, 0, 0, 0.4);
     --action-button: #0d6efd;
+    --button-hover: #0b5ed7;
+    --slider-bg: #0d6efd;
 }
 
 /* --- CSS Reset & Base Styles --- */
@@ -387,7 +395,7 @@ main h2 {
 }
 
 .save-btn {
-    background-color: var(--accent-primary);
+    background-color: var(--action-button);
     color: #ffffff;
 }
 
@@ -593,7 +601,7 @@ input[type="text"]:focus {
 }
 
 input:checked + .slider {
-    background-color: var(--accent-primary);
+    background-color: var(--slider-bg);
 }
 
 input:checked + .slider:before {
@@ -843,7 +851,7 @@ button {
 .back-button:active,
 .close-menu-btn:active,
 .form-expander-header:active {
-    background: rgba(255, 255, 255, 0.35) !important;
+    background: var(--button-hover) !important;
     transition-duration: 0s !important;
 }
 
@@ -858,7 +866,7 @@ button {
         background-color: var(--accent-hover);
     }
     .action-btn:hover {
-        background-color: var(--bg-interactive);
+        background-color: var(--button-hover);
     }
 }
 
