@@ -15,7 +15,7 @@
     --border-color: #4a6572;
     --shadow-color: rgba(0, 0, 0, 0.3);
     --action-button: #4a6572;
-    --button-hover: ;
+    --button-hover: #5f7a87;
     --slider-bg: #3498db;
 }
 
@@ -34,7 +34,7 @@ body.theme-light {
     --border-color: #e5e7eb;
     --shadow-color: rgba(0, 0, 0, 0.1);
     --action-button: #909090;
-    --button-hover: ;
+    --button-hover: #d1d5db;
     --slider-bg: #909090;
 }
 
@@ -53,7 +53,7 @@ body.theme-blue {
     --border-color: #0d1b2a;
     --shadow-color: rgba(0, 0, 0, 0.4);
     --action-button: #415a77;
-    --button-hover: ;
+    --button-hover: #778da9;
     --slider-bg: #415a77;
 }
 
