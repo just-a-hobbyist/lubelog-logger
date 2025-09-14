@@ -25,6 +25,7 @@ const savedEntriesList = document.getElementById('saved-entries-list');
 const backFromSaved = document.getElementById('back-from-saved');
 const retryAllButton = document.getElementById('retry-all-button');
 const updateButton = document.getElementById('update-button');
+const themeSelect = document.getElementById('theme-select');
 const refreshIntervalSelect = document.getElementById('refresh-interval-select');
 
 // Views
@@ -94,11 +95,11 @@ function createVehicleCard(vehicle) {
     return `
         <li class="vehicle-card" data-vehicle-id="${vehicle.vehicleData.id}" data-hours-odometer="${hrsOdo}" data-touch-feedback>
             <div class="card-header">
-                <div>
+                <div class="card-info">
                     <h2>${vehicleName}</h2>
                     <p>${vehicleIdentifier}</p>
                 </div>
-                <img src="./img/chevron-icon.svg" alt="Expand" class="chevron-icon">
+                <div class="chevron-icon icon"></div>
             </div>
             <div class="card-details">
                 <div class="odometer-info">
@@ -477,6 +478,18 @@ function refreshDataIfStale() {
 
 // --- Core App Logic ---
 document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'theme-dark'; // Default to dark theme
+    document.body.classList.add(savedTheme);
+    themeSelect.value = savedTheme;
+
+    themeSelect.addEventListener('change', () => {
+        const currentTheme = localStorage.getItem('theme');
+        const newTheme = themeSelect.value;
+        document.body.classList.add(newTheme);
+        document.body.classList.remove(currentTheme);
+        localStorage.setItem('theme', newTheme);
+        showToast('Theme saved.');
+    });
     const savedCreds = localStorage.getItem('lubeLoggerCreds');
     const lastDomain = localStorage.getItem('lastDomain');
     if (lastDomain) domainField.value = lastDomain;
