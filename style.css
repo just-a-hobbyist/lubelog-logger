@@ -3,8 +3,8 @@
     /* Default: Dark Theme */
     --bg-primary: #2c3e50;
     --bg-secondary: #34495e;
-    --bg-tertiary: #4a6572;
-    --bg-interactive: #5f7a87;
+    --bg-tertiary: #606c72;
+    --bg-interactive: #4a6572;
     --bg-overlay: rgba(255, 255, 255, 0.05);
     --text-primary: #ecf0f1;
     --text-secondary: #d1d5db;
@@ -61,12 +61,12 @@ body.theme-og-dark {
     --bg-primary: #212529;
     --bg-secondary: #343a40;
     --bg-tertiary: #454c53;
-    --bg-interactive: rgba(255, 255, 255, 0.15);
+    --bg-interactive: hsl(210deg 5.75% 34.12%);
     --bg-overlay: rgba(255, 255, 255, 0.05);
     --text-primary: #e0e1dd;
     --text-secondary: #c2c3c0;
     --text-muted: #a4a5a2;
-    --accent-primary: #63a4ff;
+    --accent-primary: #0d6efd;
     --accent-hover: #4e8dff;
     --accent-danger: #ff5252;
     --border-color: rgba(255, 255, 255, 0.15);
@@ -175,7 +175,7 @@ body.menu-open {
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background-color: var(--bg-primary);
+    background-color: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
@@ -395,7 +395,7 @@ main h2 {
 }
 
 .save-btn {
-    background-color: var(--action-button);
+    background-color: var(--accent-primary);
     color: #ffffff;
 }
 
@@ -442,8 +442,8 @@ textarea,
 input[type="text"] {
     width: 100%;
     padding: 0.75rem;
-    background-color: var(--bg-tertiary);
-    border: 1px solid var(--bg-interactive);
+    background-color: var(--bg-interactive);
+    border: 1px solid var(--bg-tertiary);
     border-radius: 0.375rem;
     color: #ffffff;
     font-size: 1rem;
@@ -513,11 +513,11 @@ input[type="text"]:focus {
     margin-bottom: 0.5rem;
 }
 
-.form-group input {
+.form-group input, textarea {
     width: 100%;
     padding: 0.75rem;
-    background-color: var(--bg-tertiary);
-    border: 1px solid var(--bg-interactive);
+    background-color: var(--bg-interactive);
+    border: 1px solid var(--border-color);
     border-radius: 0.375rem;
     color: #ffffff;
     font-size: 1rem;
@@ -810,8 +810,8 @@ select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-color: var(--bg-tertiary);
-    border: 1px solid var(--bg-interactive);
+    background-color: var(--bg-interactive);
+    border: 1px solid var(--border-color);
     border-radius: 0.375rem;
     color: var(--text-primary);
     padding: 0.5rem 2rem 0.5rem 0.75rem;
@@ -851,7 +851,7 @@ button {
 .back-button:active,
 .close-menu-btn:active,
 .form-expander-header:active {
-    background: var(--button-hover) !important;
+    background: var(--bg-tertiary) !important;
     transition-duration: 0s !important;
 }
 

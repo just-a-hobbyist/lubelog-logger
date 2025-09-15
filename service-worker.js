@@ -23,9 +23,11 @@ const urlsToCache = [
     './icons/icon.svg',
     './img/back-btn.svg',
     './img/chevron-icon.svg',
+    './img/small-chevron.svg',
     './img/close-btn.svg',
     './img/menu-btn.svg',
     './img/refresh-btn.svg',
+    './img/logout-btn.svg',
     './version.json'
 ];
 

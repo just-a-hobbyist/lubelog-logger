@@ -1,16 +1,12 @@
 import { refreshDataIfStale } from "./state.js";
 import { fetchVehicles, addRecord, checkForUpdates } from "./api.js";
-import { showView, closeSideMenu, renderSavedEntries } from "./ui.js";
+import { showView, closeSideMenu, renderSavedEntries, loginModal, showToast, loginForm } from "./ui.js";
 const menuButton = document.getElementById('menu-button');
-const sideMenu = document.getElementById('side-menu');
 const menuOverlay = document.getElementById('menu-overlay');
 const logoutButton = document.getElementById('logout-button');
 const closeMenuButton = document.getElementById('close-menu-button');
 const refreshButton = document.getElementById('refresh-button');
 const updateButton = document.getElementById('update-button');
-const addOdoOdoHeader = document.getElementById('odometer-form-title');
-const addOdoOdoEntry = document.getElementById('odometer-odometer');
-const addFuelOdoEntry = document.getElementById('fuel-odometer');
 const fuelForm = document.getElementById('add-fuel-form');
 const odometerForm = document.getElementById('add-odometer-form');
 const backFromFuel = document.getElementById('back-from-fuel');
@@ -20,8 +16,7 @@ const savedEntriesList = document.getElementById('saved-entries-list');
 const backFromSaved = document.getElementById('back-from-saved');
 const retryAllButton = document.getElementById('retry-all-button');
 const vehicleList = document.getElementById('vehicle-list');
-
-
+const themeSelect = document.getElementById('theme-select');
 
 function setupEventListeners() {
     refreshButton.addEventListener('mouseup', () => {
@@ -36,6 +31,36 @@ function setupEventListeners() {
         showToast("Unable to refresh, try logging in again", 'error');
         loginModal.classList.remove('hidden');
     }
+    });
+
+    loginForm.addEventListener('submit', (event) => {
+    event.preventDefault(); 
+    
+    let domain = event.target.domain.value.trim();
+    const username = event.target.username.value;
+    const password = event.target.password.value;
+
+    if (domain && !domain.startsWith('http://') && !domain.startsWith('https://')) {
+        domain = 'http://' + domain;
+    }
+
+    if (domain && username && password) {
+        const credentials = { domain, username, password };
+        localStorage.setItem('lastDomain', domain);
+        localStorage.setItem('lubeLoggerCreds', JSON.stringify(credentials));
+        console.log("Credentials and server address saved.");
+        loginModal.classList.add('hidden');
+        fetchVehicles(credentials);
+    }
+});
+
+    themeSelect.addEventListener('change', () => {
+        const currentTheme = localStorage.getItem('theme');
+        const newTheme = themeSelect.value;
+        document.body.classList.add(newTheme);
+        document.body.classList.remove(currentTheme);
+        localStorage.setItem('theme', newTheme);
+        showToast('Theme saved.');
     });
 
     backFromFuel.addEventListener('mouseup', () => {
@@ -73,6 +98,34 @@ function setupEventListeners() {
         showView('view-vehicle-list');
         loginModal.classList.remove('hidden');
         showToast("You have been logged out.");
+    });
+
+    // --- Touch Tolerance & Feedback Handler ---
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const tolerance = 10;
+
+    document.body.addEventListener('touchstart', (e) => {
+        const targetElement = e.target.closest('[data-touch-feedback]');
+        if (!targetElement) return;
+
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+    }, { passive: true });
+
+    document.body.addEventListener('touchend', (e) => {
+        const targetElement = e.target.closest('[data-touch-feedback]');
+        if (!targetElement) return;
+
+        if (e.changedTouches.length === 1) {
+            const touch = e.changedTouches[0];
+            const deltaX = Math.abs(touch.clientX - touchStartX);
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+            if (deltaX < tolerance && deltaY < tolerance) {
+                targetElement.click();
+            }
+        }
     });
 
     // Event listener for all interactions within the vehicle list
@@ -228,5 +281,5 @@ function setupEventListeners() {
 
 export { setupEventListeners, vehicleList, fuelForm, 
     odometerForm, updateButton, retryAllButton,
-    savedEntriesList
+    savedEntriesList, themeSelect
  };

@@ -1,20 +1,19 @@
 import { vehicleList, fuelForm, odometerForm, retryAllButton, savedEntriesList } from "./eventlisteners.js";
 // Views and elements
-const vehicleListView = document.getElementById('view-vehicle-list');
-const addFuelView = document.getElementById('view-add-fuel');
-const addOdometerView = document.getElementById('view-add-odometer');
-const viewSavedEntries = document.getElementById('view-saved-entries');
+// const vehicleListView = document.getElementById('view-vehicle-list');
+// const addFuelView = document.getElementById('view-add-fuel');
+// const addOdometerView = document.getElementById('view-add-odometer');
+// const viewSavedEntries = document.getElementById('view-saved-entries');
+// const addOdoOdoHeader = document.getElementById('odometer-form-title');
+// const addOdoOdoEntry = document.getElementById('odometer-odometer');
+const addFuelOdoEntry = document.getElementById('fuel-odometer');
 const fuelFormTitle = document.getElementById('fuel-form-title');
 const odometerFormTitle = document.getElementById('odometer-form-title');
 const loginModal = document.getElementById('login-modal');
 const loginForm = document.getElementById('login-form');
 const toast = document.getElementById('toast-notification');
-let vehiclesCache = []; // In-memory cache for vehicle data
-
-
-
-
-let toastTimeout; // To manage toast timer
+let vehiclesCache = [];
+let toastTimeout;
 
 /**
  * Manages which view is currently visible.
@@ -207,8 +206,7 @@ function showUpdateNotification() {
     showToast(toastContent, 'success', false);
 }
 
-export { showUpdateNotification, showToast, renderSavedEntries, 
-    showView, closeSideMenu, loginForm, 
-    loginModal, renderVehicles, toast,
-    toastTimeout
+export { showUpdateNotification, renderSavedEntries, 
+    showView, closeSideMenu, loginForm, loginModal, 
+    renderVehicles, showToast, toast, toastTimeout,
  };

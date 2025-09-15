@@ -43,4 +43,12 @@ function refreshDataIfStale() {
     }
 }
 
-export { saveRecordOffline, refreshDataIfStale };
+function getCreds() {
+    return localStorage.getItem('lubeLoggerCreds');
+}
+
+function getLastDomain() {
+    return localStorage.getItem('lastDomain');
+}
+
+export { saveRecordOffline, refreshDataIfStale, getCreds, getLastDomain };
