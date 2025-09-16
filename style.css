@@ -5,6 +5,7 @@
     --bg-secondary: #34495e;
     --bg-tertiary: #606c72;
     --bg-interactive: #4a6572;
+    --bg-record: rgba(255, 255, 255, 0.05);
     --bg-overlay: rgba(255, 255, 255, 0.05);
     --text-primary: #ecf0f1;
     --text-secondary: #d1d5db;
@@ -12,55 +13,46 @@
     --accent-primary: #3498db;
     --accent-hover: #2980b9;
     --accent-danger: #c0392b;
+    --accent-danger-hover: #c82333;
     --border-color: #4a6572;
     --shadow-color: rgba(0, 0, 0, 0.3);
     --action-button: #4a6572;
-    --button-hover: #5f7a87;
+    --action-button-text: #ecf0f1;
+    --action-button-border: none;
+    --action-button-hover-bg: #606c72;
+    --button-disabled: #2f6181;
     --slider-bg: #3498db;
 }
 
 body.theme-light {
-    --bg-primary: #f3f4f6;
+    --bg-primary: #f8f9fa;
     --bg-secondary: #ffffff;
-    --bg-tertiary: #909090;
-    --bg-interactive: #d1d5db;
-    --bg-overlay: rgba(0, 0, 0, 0.05);
-    --text-primary: #111827;
-    --text-secondary: #374151;
-    --text-muted: #6b7280;
-    --accent-primary: #3b82f6;
-    --accent-hover: #2563eb;
-    --accent-danger: #ef4444;
-    --border-color: #e5e7eb;
+    --bg-tertiary: #e9ecef;
+    --bg-interactive: #dee2e6;
+    --bg-overlay: rgba(0, 0, 0, 0.03);
+    --bg-record: #e9ecef;
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #6c757d;
+    --accent-primary: #007bff;
+    --accent-hover: #0056b3;
+    --accent-danger: #dc3545;
+    --accent-danger-hover: #c82333;
+    --border-color: #cccfd3;
     --shadow-color: rgba(0, 0, 0, 0.1);
-    --action-button: #909090;
-    --button-hover: #d1d5db;
+    --action-button: transparent;
+    --action-button-text: #007bff;
+    --action-button-border: #007bff;
+    --action-button-hover-bg: rgba(0, 123, 255, 0.1);
+    --button-disabled: #9394a5;
     --slider-bg: #909090;
-}
-
-body.theme-blue {
-    --bg-primary: #0d1b2a;
-    --bg-secondary: #1b263b;
-    --bg-tertiary: #415a77;
-    --bg-interactive: #778da9;
-    --bg-overlay: rgba(255, 255, 255, 0.05);
-    --text-primary: #e0e1dd;
-    --text-secondary: #c2c3c0;
-    --text-muted: #a4a5a2;
-    --accent-primary: #63a4ff;
-    --accent-hover: #4e8dff;
-    --accent-danger: #ff5252;
-    --border-color: #0d1b2a;
-    --shadow-color: rgba(0, 0, 0, 0.4);
-    --action-button: #415a77;
-    --button-hover: #778da9;
-    --slider-bg: #415a77;
 }
 
 body.theme-og-dark {
     --bg-primary: #212529;
     --bg-secondary: #343a40;
     --bg-tertiary: #454c53;
+    --bg-record: #343a40;
     --bg-interactive: hsl(210deg 5.75% 34.12%);
     --bg-overlay: rgba(255, 255, 255, 0.05);
     --text-primary: #e0e1dd;
@@ -69,10 +61,15 @@ body.theme-og-dark {
     --accent-primary: #0d6efd;
     --accent-hover: #4e8dff;
     --accent-danger: #ff5252;
+    --accent-danger-hover: #c82333;
     --border-color: rgba(255, 255, 255, 0.15);
     --shadow-color: rgba(0, 0, 0, 0.4);
     --action-button: #0d6efd;
+    --action-button-text: #e0e1dd;
+    --action-button-border: none;
+    --action-button-hover-bg: #0b5ed7;
     --button-hover: #0b5ed7;
+    --button-disabled: #2f6181;
     --slider-bg: #0d6efd;
 }
 
@@ -339,15 +336,15 @@ main h2 {
 
 .action-btn {
     flex-grow: 1;
-    background-color: var(--bg-tertiary);
     border: none;
     border-radius: 0.375rem;
     padding: 0.75rem;
-    color: var(--text-primary);
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     background-color: var(--action-button);
+    border: 1px solid var(--action-button-border);
+    color: var(--action-button-text);
     transition: background-color 0.3s ease;
 }
 
@@ -377,7 +374,7 @@ main h2 {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--bg-record);
     padding: 1.5rem 1rem;
     border-radius: 0.5rem;
 }
@@ -400,7 +397,7 @@ main h2 {
 }
 
 .save-btn:disabled {
-    background-color: #2f6181;
+    background-color: var(--button-disabled);
     color: #c0c0c0;
     cursor: not-allowed;
 }
@@ -519,7 +516,7 @@ input[type="text"]:focus {
     background-color: var(--bg-interactive);
     border: 1px solid var(--border-color);
     border-radius: 0.375rem;
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 1rem;
     outline: none;
     transition: box-shadow 150ms ease-in-out;
@@ -707,7 +704,7 @@ body.menu-open #side-menu {
 }
 
 .saved-entry-card {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--bg-record);
     border-radius: 0.5rem;
     padding: 1rem;
     display: flex;
@@ -721,7 +718,7 @@ body.menu-open #side-menu {
 }
 
 .saved-entry-card strong {
-    color: #ffffff;
+    color: var(--text-muted);
     font-weight: 600;
 }
 
@@ -742,7 +739,10 @@ body.menu-open #side-menu {
 }
 
 .saved-entry-actions .delete-btn {
-    background-color: var(--accent-danger); 
+    background-color: var(--accent-danger);
+    border-color: var(--accent-danger);
+    color: #ffffff; 
+
 }
 
 /* --- Update Checker --- */
@@ -850,7 +850,8 @@ button {
 .action-btn:active,
 .back-button:active,
 .close-menu-btn:active,
-.form-expander-header:active {
+.form-expander-header:active,
+.saved-entry-actions .delete-btn:active {
     background: var(--bg-tertiary) !important;
     transition-duration: 0s !important;
 }
@@ -866,7 +867,11 @@ button {
         background-color: var(--accent-hover);
     }
     .action-btn:hover {
-        background-color: var(--button-hover);
+        background-color: var(--action-button-hover-bg);
+    }
+    .saved-entry-actions .delete-btn:hover {
+        background-color: var(--accent-danger-hover);
+        border-color: var(--accent-danger-hover);
     }
 }
 

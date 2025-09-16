@@ -1,4 +1,5 @@
 import { themeSelect } from "./eventlisteners.js";
+import { showToast } from "./ui.js";
 
 /**
  * Gets and sets the theme on initial load of the app
