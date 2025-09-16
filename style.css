@@ -581,6 +581,7 @@ input[type="text"]:focus {
     right: 0;
     bottom: 0;
     background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
     border-radius: 28px;
     transition: .4s;
 }
@@ -591,7 +592,7 @@ input[type="text"]:focus {
     height: 20px;
     width: 20px;
     left: 4px;
-    bottom: 4px;
+    bottom: 3px;
     background-color: white;
     border-radius: 50%;
     transition: .4s;
