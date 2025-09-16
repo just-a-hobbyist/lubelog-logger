@@ -1,28 +1,25 @@
 import { fetchVehicles } from "./api.js";
-import { setupEventListeners, themeSelect } from "./eventlisteners.js";
-import { showView, loginModal, renderVehicles } from "./ui.js";
-import { refreshDataIfStale, getCreds, getLastDomain } from "./state.js";
+import { setupEventListeners } from "./eventlisteners.js";
+import { loginModal, renderVehicles, showToast } from "./ui.js";
+import { refreshDataIfStale, getCreds, getLastDomain, setTheme } from "./state.js";
 // --- App State and DOM Element Constants ---
 const domainField = document.getElementById('domain');
 const refreshIntervalSelect = document.getElementById('refresh-interval-select');
 
+
 // --- Core App Logic ---
 document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme') || 'theme-dark'; // Default to dark theme
-    document.body.classList.add(savedTheme);
-    themeSelect.value = savedTheme;
-
+    setTheme();
     const savedCreds = getCreds();
     const lastDomain = getLastDomain();
-    if (lastDomain) domainField.value = lastDomain.lastDomain;
+    if (lastDomain) domainField.value = lastDomain;
     if (!savedCreds) {
         loginModal.classList.remove('hidden');
     } else {
         const creds = JSON.parse(savedCreds);
         const vehiclesJSON = localStorage.getItem('vehicles');
-
         if (!vehiclesJSON) {
-            console.log("No cached vehicles found, fetching...");
+            showToast('No cached vehicles found, fetching...');
             fetchVehicles(creds);
         } else {
             try {
@@ -46,14 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('fuel-date').valueAsDate = new Date();
     document.getElementById('odometer-date').valueAsDate = new Date();
 
-    // Listen for browser back/forward navigation (phone's back button)
-    window.addEventListener('popstate', (event) => {
-        if (event.state && event.state.viewId) {
-            showView(event.state.viewId, event.state.data, true);
-        } else {
-            showView('view-vehicle-list', {}, true);
-        }
-    });
     setupEventListeners();
 });
 

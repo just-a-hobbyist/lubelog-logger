@@ -1,6 +1,6 @@
 import { refreshDataIfStale } from "./state.js";
 import { fetchVehicles, addRecord, checkForUpdates } from "./api.js";
-import { showView, closeSideMenu, renderSavedEntries, loginModal, showToast, loginForm } from "./ui.js";
+import { showView, closeSideMenu, renderSavedEntries, loginModal, toast, showToast, loginForm } from "./ui.js";
 const menuButton = document.getElementById('menu-button');
 const menuOverlay = document.getElementById('menu-overlay');
 const logoutButton = document.getElementById('logout-button');
@@ -41,7 +41,11 @@ function setupEventListeners() {
     const password = event.target.password.value;
 
     if (domain && !domain.startsWith('http://') && !domain.startsWith('https://')) {
-        domain = 'http://' + domain;
+        // Check if the domain is an IP address, indicating likely on the local network, 
+        // and thus HTTPS will not be enforced
+        if (!domain.match(/^(?:https?:\/\/)?\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/.*/i)) {
+            domain = 'https://' + domain;
+        }
     }
 
     if (domain && username && password) {
@@ -52,7 +56,7 @@ function setupEventListeners() {
         loginModal.classList.add('hidden');
         fetchVehicles(credentials);
     }
-});
+    });
 
     themeSelect.addEventListener('change', () => {
         const currentTheme = localStorage.getItem('theme');
@@ -60,7 +64,7 @@ function setupEventListeners() {
         document.body.classList.add(newTheme);
         document.body.classList.remove(currentTheme);
         localStorage.setItem('theme', newTheme);
-        showToast('Theme saved.');
+        showToast('Theme saved');
     });
 
     backFromFuel.addEventListener('mouseup', () => {
@@ -70,7 +74,7 @@ function setupEventListeners() {
         history.back();
     });
 
-    updateButton.addEventListener('click', () => {
+    updateButton.addEventListener('mouseup', () => {
         checkForUpdates();
     });
 
@@ -277,6 +281,16 @@ function setupEventListeners() {
             refreshDataIfStale();
         }
     });
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.viewId) {
+            showView(event.state.viewId, event.state.data, true);
+        } else {
+            showView('view-vehicle-list', {}, true);
+        }
+    });
+    toast.addEventListener('mouseup', () => {
+        if (toast.classList.contains('active') && !toast.classList.contains('error')) toast.classList.remove('active');
+    })
 }
 
 export { setupEventListeners, vehicleList, fuelForm, 

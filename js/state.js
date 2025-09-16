@@ -1,4 +1,13 @@
-// App State
+import { themeSelect } from "./eventlisteners.js";
+
+/**
+ * Gets and sets the theme on initial load of the app
+ */
+function setTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'theme-dark'; // Default to dark theme
+    document.body.classList.add(savedTheme);
+    themeSelect.value = savedTheme;
+}
 
 /**
  * Saves a failed record submission to local storage.
@@ -51,4 +60,4 @@ function getLastDomain() {
     return localStorage.getItem('lastDomain');
 }
 
-export { saveRecordOffline, refreshDataIfStale, getCreds, getLastDomain };
+export { saveRecordOffline, refreshDataIfStale, getCreds, getLastDomain, setTheme };
