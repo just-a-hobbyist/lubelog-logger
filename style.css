@@ -742,7 +742,10 @@ body.menu-open #side-menu {
     background-color: var(--accent-danger);
     border-color: var(--accent-danger);
     color: #ffffff; 
+}
 
+.no-vehicles-message {
+    color: var(--text-secondary);
 }
 
 /* --- Update Checker --- */

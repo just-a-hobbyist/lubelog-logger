@@ -11,6 +11,15 @@ function setTheme() {
 }
 
 /**
+ * Checks to see if there are saved entries waiting to be submitted
+ */
+function checkSavedEntries() {
+    const savedEntries = JSON.parse(localStorage.getItem('savedEntries'));
+    if (savedEntries.length) return savedEntries.length;
+    return false;
+}
+
+/**
  * Saves a failed record submission to local storage.
  * @param {object} record - The record that failed to submit.
  */
@@ -61,4 +70,6 @@ function getLastDomain() {
     return localStorage.getItem('lastDomain');
 }
 
-export { saveRecordOffline, refreshDataIfStale, getCreds, getLastDomain, setTheme };
+export { saveRecordOffline, refreshDataIfStale, getCreds, 
+    getLastDomain, setTheme, checkSavedEntries
+};
