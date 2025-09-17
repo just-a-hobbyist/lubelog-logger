@@ -6,7 +6,6 @@ PWA to push Fuel and Odometer Records to your LubeLogger server from your phone.
 
 This app is designed specifically for use on mobile phones, and is not optimized for desktop use. It can certainly be used via desktop, the experience may just not be great.  
   
-
 Keep in mind moving forward that, as the name suggests, I'm just a hobbyist. I'm not a professional web developer by any stretch, and I used LLMs pretty heavily in developing this. I do have a reasonable grasp on web development, but not the in-depth knowledge of CSS and HTML necessary to really make something polished and pretty.  
   
 I'm not that familiar with GitHub, either, so don't be surprised when you see a thousand commits with small changes. It was the easiest way for me to test and save files since I work from a handful of different machines.
@@ -20,11 +19,12 @@ That's pretty much it, it's a simple app designed to do a simple task easily.
 
 ## Dependencies 
 
-- This project is simply a frontend for two different components of [LubeLogger by hargata](https://github.com/hargata/lubelog). As such, this PWA requires you to have an instance of LubeLogger running somewhere in order to use.  
+- This project is a frontend for two different components of [LubeLogger by hargata](https://github.com/hargata/lubelog). As such, this PWA requires you to have an instance of LubeLogger running somewhere in order to use.  
+- If you want to self-host, you'll need git installed on your server to pull the app and any updates in the future. 
 
 ## Installation
 
-For now, this will require manual installation, but there are plans in the future to make this a little easier. I'm not sure I want to get into Docker, especially considering it's just a PWA. 
+There are a few options here, with the easiest (but potentially least secure) being to simply visit [the GitHub Page](https://just-a-hobbyist.github.io/lubelog-logger/) on your phone and login from there, or install as a PWA from there. That would allow easy updates and quick testing to see if you like the app, but it would also require you to open up CORS on your LubeLogger server to allow requests from my GitHub Page. The other option is to self-host the site on your own server, which requires using git and manually updating occasionally. I am exploring options to allow automatic updating, but haven't worked out the details yet - I'm not particularly interested in trying to learn docker or similar. Should you decide to go the self-hosted route, here are the instructions: 
   
 1. Open your teminal of choice and navigate to the location at which you want to store the files (recommend `/var/www/` for the Linux users among us).
 
@@ -47,6 +47,7 @@ server {
     # Set the default file to serve
     index index.html;
 
+    # If you're going to be hosting this from the root domain, just use "location /", but if you're going to be hosting from something like domain.com/lubelog-logger, you'll need to set location to "/lubelog-logger/"
     location / {
         try_files $uri $uri/ =404;
     }
@@ -83,37 +84,44 @@ location / {
 ```  
 8. Save the file, run `sudo nginx -t` and `sudo systemctl reload nginx` one more time to update the configuration. 
 
-9. That's it, you should be able to run the app now. Navigate to the domain you set in the `lubelog-logger.conf` file to get started.
+9. **Important!!!** Lubelogger authentication via the API currently uses Basic Auth based on RFC2617, which means that your username and password are encoded, but **not encrypted**, in *storage or transit*! To protect yourself and your computer, use a strong, unique password, and use **only** https if you want to make your instance accessible from outside your local network. To set up https, do the following if using nginx: `sudo apt install certbot`, then `sudo certbot --nginx`. This will make certbot automatically find and create all the necessary certs and changes to your nginx `.conf` file. 
+
+10. That's it, you should be able to run the app now. Navigate to the domain you set in the `lubelog-logger.conf` file to get started. If you want to install it as a PWA on your phone rather than use it as a website, you can do so using whatever method with which PWAs are normally installed on your device. For instance, Chrome and Firefox usually have an option to "Add to Home screen" or similar in the 3-dot menu on the webpage. This allows you to use and manage it like any other app on your device, so you can clear the cache, uninstall it, set permissions, etc.
 
 ## Usage
 
-Enter your domain, username, and password.  
+Enter your domain, username, and password. Domain should be an IP address only if you are using it strictly on a local network, otherwise use a domain with https. 
   
-<img src="/docs/images/login.png" alt="Login page screenshot" width="350"/>
+<img src="./docs/images/login.png" alt="Login page screenshot" width="350"/>
   
-The app will pull all vehicles associated with that username. To manually refresh the list if you want/need to, tap the refresh icon in the top right. To add a fuel or odometer record, tap one of your vehicles, then the button for whichever record you'd like to add.  
+The app will pull all vehicles associated with that username. To manually refresh the list if you want/need to, tap the refresh icon in the top right. The list can also be automatically refreshed after 1, 3, or 7 days, or never - as decided by the user in the side menu bar. Vehicles are identified by their license plate by default, but if you have enabled custom fields for the vehicle and set the identifier in LubeLogger to be a custom field (like a serial number or VIN) it will use that same identifier here. To add a fuel or odometer/hour record, tap one of your vehicles, then the button for whichever record you'd like to add.  
   
-<img src="/docs/images/vehicle-list.png" alt="Vehicle list screenshot" width="350"/>
+<img src="./docs/images/vehicle-list.png" alt="Vehicle list screenshot" width="350"/>
   
-On the record entry page, fill out all necessary fields. To see Notes and Tags section, tap the "Notes & Tags" bar. Note: tags should be space-separated, just like they are on the native interface.  
+On the record entry page, fill out all necessary fields. To see Notes and Tags section, tap the "Notes & Tags" bar. Note: tags should be space-separated, just like they are on the native interface. If you have set the vehicle to be "odometer optional" it will not be required in fuel entries, but will be required in odometer/hour entries.  
   
-<img src="docs/images/add-record.jpg" alt="Add record screenshot" width="350"/>
+<img src="./docs/images/add-record.jpg" alt="Add record screenshot" width="350"/>
 
-When you're done, click "Save Record". The app will push the data to your server. If it does not succeed, the entry will be saved and is accessible under "Saved Entries", so you can try again later. After a successful submission, you'll be notified and taken back to the main vehicle list. 
+When you're done, click "Save Record". The app will push the data to your server. If it does not succeed due to network failure, the entry will be saved and is accessible under "Saved Entries", so you can try again later. After a successful submission, you'll be notified and taken back to the main vehicle list. 
  
 Tap the "Back to Vehicles" button to go back to your vehicle list if you don't want to make an entry.  
   
-To log out, tap the hamburger icon in the top right, then tap "Logout".  
+To log out, tap the hamburger icon in the top right, then tap "Logout". The app will save the last domain entered in the domain field.  
 
-<img src="docs/images/menu-bar.png" alt="Menu bar screenshot" width="350"/> 
+<img src="./docs/images/menu-bar.png" alt="Menu bar screenshot" width="350"/> 
 
-You can also tap "Saved Entries" to view any entries which failed due to network issues. From that menu you can retry them individually or all together, or delete them entirely. 
+From this menu you can also tap "Saved Entries" to view any entries which failed due to network issues. From that page you can retry them individually or all together, or delete them entirely. 
+ 
+You can also select from a few different themes here. The default is dark as seen in the screenshots, and there is also a light mode and an "OG Dark" which attempts to emulate the colors of LubeLogger's dark theme. 
 
 This is also where you can check for updates to the app itself. The process is as follows: 
-TODO 
-1. This needs work and updating
+ 
+1. Open the side menu and tap "Check for Updates" 
+2. If there is a new version on GitHub, you will be notified that an update is available. 
+3. Navigate on your server to the location you to which you pulled the repository and run `git pull origin main` to download all the latest files.
+4. Tap "Check for Updates" again, and the app will find new files, and prompt you with a toast notification to reload the app. Tap the button to reload and the new version will be downloaded and installed.
 
-You can also set the auto-refresh interval. The default is 1 day. This is how often the app will refresh your vehicle list automatically when you open it. You may set it to 1, 3, or 7 days, or to never auto update. 
+You can also set the auto-refresh interval from the menu bar.
   
 ## Contributing 
 
