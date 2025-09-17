@@ -15,7 +15,7 @@ function setTheme() {
  */
 function checkSavedEntries() {
     const savedEntries = JSON.parse(localStorage.getItem('savedEntries'));
-    if (savedEntries.length) return savedEntries.length;
+    if (savedEntries?.length) return savedEntries.length;
     return false;
 }
 
