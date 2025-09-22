@@ -1,3 +1,4 @@
+import { addToToastHistory, toastHistory } from "./state.js";
 import { vehicleList, fuelForm, odometerForm, retryAllButton, savedEntriesList } from "./eventlisteners.js";
 // Views and elements
 // const vehicleListView = document.getElementById('view-vehicle-list');
@@ -12,6 +13,7 @@ const odometerFormTitle = document.getElementById('odometer-form-title');
 const loginModal = document.getElementById('login-modal');
 const loginForm = document.getElementById('login-form');
 const toast = document.getElementById('toast-notification');
+const themeColorMeta = document.getElementById('theme-color-meta');
 let vehiclesCache = [];
 let toastTimeout;
 
@@ -142,6 +144,32 @@ function renderSavedEntries(entriesToRender) {
     }).join('');
 }
 
+/**
+ * Renders the toast history into the DOM.
+ */
+function renderToastHistory() {
+    const historyList = document.getElementById('toast-history-list');
+    if (!historyList) return;
+
+    // Get the history, reverse it to show newest first
+    const reversedHistory = [...toastHistory].reverse();
+
+    if (reversedHistory.length === 0) {
+        historyList.innerHTML = '<li><p class="no-vehicles-message">No notifications yet.</p></li>';
+        return;
+    }
+
+    historyList.innerHTML = reversedHistory.map(entry => {
+        const timestamp = new Date(entry.timestamp).toLocaleString();
+        return `
+            <li class="toast-history-item ${entry.type}">
+                <p class="toast-history-message">${entry.message}</p>
+                <p class="toast-history-timestamp">${timestamp}</p>
+            </li>
+        `;
+    }).join('');
+}
+
 
 /**
  * Displays a toast notification.
@@ -151,6 +179,7 @@ function renderSavedEntries(entriesToRender) {
  */
 function showToast(content, type = 'success', autoHide = true) {
     if (toastTimeout) clearTimeout(toastTimeout);
+    if (typeof content === 'string') addToToastHistory(content, type);
 
     toast.innerHTML = ''; 
 
@@ -206,7 +235,14 @@ function showUpdateNotification() {
     showToast(toastContent, 'success', false);
 }
 
+function updateThemeColor() {
+    const bodyStyles = window.getComputedStyle(document.body);
+    const headerColor = bodyStyles.getPropertyValue('--bg-secondary').trim();
+    if (themeColorMeta) themeColorMeta.setAttribute('content', headerColor);
+}
+
 export { showUpdateNotification, renderSavedEntries, 
     showView, closeSideMenu, loginForm, loginModal, 
     renderVehicles, showToast, toast, toastTimeout,
+    updateThemeColor, renderToastHistory
  };

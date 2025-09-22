@@ -1,5 +1,8 @@
 import { themeSelect } from "./eventlisteners.js";
 import { showToast } from "./ui.js";
+import { fetchVehicles } from "./api.js";
+
+let toastHistory = [];
 
 /**
  * Gets and sets the theme on initial load of the app
@@ -62,14 +65,47 @@ function refreshDataIfStale() {
     }
 }
 
+/**
+ * Loads the stored credentials.
+ */
 function getCreds() {
     return localStorage.getItem('lubeLoggerCreds');
 }
 
+/**
+ * Loads the last domain credential.
+ */
 function getLastDomain() {
     return localStorage.getItem('lastDomain');
 }
 
+/**
+ * Loads the toast history from localStorage into the state array.
+ */
+function loadToastHistory() {
+    toastHistory = JSON.parse(localStorage.getItem('toastHistory')) || [];
+}
+
+/**
+ * Adds a new message to the toast history, keeps it at 25 items, and saves it.
+ * @param {string} message The message content of the toast.
+ * @param {string} type The type of toast ('success' or 'error').
+ */
+function addToToastHistory(message, type) {
+    if (message === 'Refreshing vehicle list...') return;
+
+    const newEntry = {
+        message: message,
+        type: type,
+        timestamp: new Date().toISOString()
+    };
+    loadToastHistory();
+    // Add the new entry and keep the array trimmed to the last 25 items
+    toastHistory = [...toastHistory, newEntry].slice(-25);
+    localStorage.setItem('toastHistory', JSON.stringify(toastHistory));
+}
+
 export { saveRecordOffline, refreshDataIfStale, getCreds, 
-    getLastDomain, setTheme, checkSavedEntries
+    getLastDomain, setTheme, checkSavedEntries, 
+    loadToastHistory, addToToastHistory, toastHistory,
 };

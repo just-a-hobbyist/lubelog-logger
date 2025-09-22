@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#34495e">
+    <meta name="theme-color" id="theme-color-meta" content="#34495e">
     <title>LubeLogger</title>
     
     <link rel="manifest" href="manifest.json">
@@ -47,7 +47,6 @@
 
             <!-- View 2: Add Fuel Record Form -->
             <div id="view-add-fuel" class="view">
-                <!-- Back button specific to this view -->
                 <button id="back-from-fuel" class="back-button" data-touch-feedback>
                     <div class="back-icon icon" alt="Back"></div>
                     Back to Vehicles
@@ -109,7 +108,6 @@
             </div>
             <!-- View 3: Add Odometer Record Form -->
             <div id="view-add-odometer" class="view">
-                <!-- Back button specific to this view -->
                 <button id="back-from-odometer" class="back-button" data-touch-feedback>
                     <div class="back-icon icon" alt="Back"></div>
                     Back to Vehicles
@@ -145,6 +143,7 @@
                     <button type="submit" class="form-btn save-btn"data-touch-feedback >Save Record</button>
                 </form>
             </div>
+            <!-- View 4: Saved Entries -->
             <div id="view-saved-entries" class="view hidden">
                 <div>
                     <button id="back-from-saved" class="back-button" alt="Back" data-touch-feedback>
@@ -158,6 +157,17 @@
                 </div>
                 <ul id="saved-entries-list">
                     <!-- Saved entries will be injected here by JavaScript -->
+                </ul>
+            </div>
+            <!-- View 5: Toast History -->
+            <div id="view-toast-history" class="view">
+                <button id="back-from-toast-history" class="back-button" data-touch-feedback>
+                    <div class="back-icon icon"></div>
+                    Back
+                </button>
+                <h2 class="form-title">Notification History</h2>
+                <ul id="toast-history-list">
+                    <!-- History items will be rendered here -->
                 </ul>
             </div>
         </main>
@@ -206,6 +216,10 @@
                 <button id="saved-entries-button" class="menu-item" data-touch-feedback>
                     Saved Entries
                 </button>
+            </li>
+            <li>
+                <!-- Notification History -->
+                <button id="toast-history-button" class="menu-item" data-touch-feedback>Notification History</button>
             </li>
             <!-- Update Checker -->
             <li class="update-checker">

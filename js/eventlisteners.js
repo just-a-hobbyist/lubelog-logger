@@ -1,6 +1,6 @@
 import { refreshDataIfStale } from "./state.js";
 import { fetchVehicles, addRecord, checkForUpdates } from "./api.js";
-import { showView, closeSideMenu, renderSavedEntries, loginModal, toast, showToast, loginForm } from "./ui.js";
+import { showView, closeSideMenu, renderSavedEntries, loginModal, toast, showToast, loginForm, updateThemeColor, renderToastHistory } from "./ui.js";
 const menuButton = document.getElementById('menu-button');
 const menuOverlay = document.getElementById('menu-overlay');
 const logoutButton = document.getElementById('logout-button');
@@ -17,6 +17,8 @@ const backFromSaved = document.getElementById('back-from-saved');
 const retryAllButton = document.getElementById('retry-all-button');
 const vehicleList = document.getElementById('vehicle-list');
 const themeSelect = document.getElementById('theme-select');
+const toastHistoryButton = document.getElementById('toast-history-button');
+const backFromToastHistory = document.getElementById('back-from-toast-history');
 
 function setupEventListeners() {
     refreshButton.addEventListener('mouseup', () => {
@@ -64,6 +66,7 @@ function setupEventListeners() {
         document.body.classList.add(newTheme);
         document.body.classList.remove(currentTheme);
         localStorage.setItem('theme', newTheme);
+        updateThemeColor();
         showToast('Theme saved');
     });
 
@@ -290,7 +293,16 @@ function setupEventListeners() {
     });
     toast.addEventListener('mouseup', () => {
         if (toast.classList.contains('active') && !toast.classList.contains('error')) toast.classList.remove('active');
-    })
+    });
+    toastHistoryButton.addEventListener('mouseup', () => {
+        closeSideMenu();
+        renderToastHistory();
+        showView('view-toast-history');
+    });
+
+    backFromToastHistory.addEventListener('mouseup', () => {
+        history.back();
+    });
 }
 
 export { setupEventListeners, vehicleList, fuelForm, 
