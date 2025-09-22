@@ -1,7 +1,7 @@
 import { fetchVehicles } from "./api.js";
 import { setupEventListeners } from "./eventlisteners.js";
 import { loginModal, renderVehicles, showToast } from "./ui.js";
-import { refreshDataIfStale, getCreds, getLastDomain, setTheme, checkSavedEntries } from "./state.js";
+import { refreshDataIfStale, getCreds, getLastDomain, setTheme, checkSavedEntries, loadToastHistory } from "./state.js";
 // --- App State and DOM Element Constants ---
 const domainField = document.getElementById('domain');
 const refreshIntervalSelect = document.getElementById('refresh-interval-select');
@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('fuel-date').valueAsDate = new Date();
     document.getElementById('odometer-date').valueAsDate = new Date();
 
+    loadToastHistory();
     setupEventListeners();
 });
 
