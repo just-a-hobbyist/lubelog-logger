@@ -1,4 +1,4 @@
-const CACHE_NAME = "lubelogger-pwa-cache-v1.1.3";
+const CACHE_NAME = "lubelogger-pwa-cache-v1.1.4";
 
 const urlsToCache = [
     "./",

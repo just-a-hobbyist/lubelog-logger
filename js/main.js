@@ -1,6 +1,11 @@
 import { fetchVehicles } from "./api.js";
-import { setupEventListeners } from "./eventlisteners.js";
-import { loginModal, renderVehicles, showToast } from "./ui.js";
+import { setupEventListeners, updateButton } from "./eventlisteners.js";
+import {
+    loginModal,
+    renderVehicles,
+    showToast,
+    showUpdateNotification,
+} from "./ui.js";
 import {
     refreshDataIfStale,
     getCreds,

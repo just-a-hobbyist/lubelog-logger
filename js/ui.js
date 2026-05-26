@@ -113,6 +113,10 @@ function renderVehicles(vehicles) {
         return;
     }
 
+    vehicles = vehicles.filter((v) => {
+        return !v.vehicleData.soldDate && !v.vehicleData.soldPrice;
+    });
+
     const vehicleCardsHTML = vehicles.map(createVehicleCard).join("");
     vehicleList.innerHTML = vehicleCardsHTML;
 }

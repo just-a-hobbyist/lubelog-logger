@@ -1,254 +1,474 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" id="theme-color-meta" content="#34495e">
-    <title>LubeLogger</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png">
-    <link rel="shortcut icon" type="image/x-icon" href="./icons/favicon.ico">
-</head>
-<body class="loading">
-    <div id="app">
-        <!-- Header Section -->
-        <header id="header">
-            <div id="header-logo">
-                <img src="./icons/icon.svg" alt="LubeLog Logger Logo" id="logo-img">
-                <h1>LubeLogger</h1>
-            </div>
-            <div id="header-buttons">
-                <!-- Refresh Button -->
-                <button id="refresh-button" aria-label="Refresh vehicles" data-touch-feedback>
-                    <div id="refresh-icon" class="icon"></div>
-                </button>
-                <!-- Menu Button -->
-                <button id="menu-button" aria-label="Open menu" data-touch-feedback>
-                    <div id="menu-icon" class="icon"></div>
-                </button>
-            </div>
-        </header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        />
+        <meta name="theme-color" id="theme-color-meta" content="#34495e" />
+        <title>LubeLogger</title>
 
-        <main>
-            <!-- View 1: Vehicle List -->
-            <div id="view-vehicle-list" class="view active">
-                <h2>My Vehicles</h2>
-                <ul id="vehicle-list">
-                    <!-- Vehicle cards will be rendered here by JavaScript -->
-                </ul>
-            </div>
+        <link rel="manifest" href="manifest.json" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="./icons/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="./icons/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="./icons/favicon-16x16.png"
+        />
+        <link
+            rel="shortcut icon"
+            type="image/x-icon"
+            href="./icons/favicon.ico"
+        />
+    </head>
+    <body class="loading">
+        <div id="app">
+            <!-- Header Section -->
+            <header id="header">
+                <div id="header-logo">
+                    <img
+                        src="./icons/icon.svg"
+                        alt="LubeLog Logger Logo"
+                        id="logo-img"
+                    />
+                    <h1>LubeLogger</h1>
+                </div>
+                <div id="header-buttons">
+                    <!-- Refresh Button -->
+                    <button
+                        id="refresh-button"
+                        aria-label="Refresh vehicles"
+                        data-touch-feedback
+                    >
+                        <div id="refresh-icon" class="icon"></div>
+                    </button>
+                    <!-- Menu Button -->
+                    <button
+                        id="menu-button"
+                        aria-label="Open menu"
+                        data-touch-feedback
+                    >
+                        <div id="menu-icon" class="icon"></div>
+                    </button>
+                </div>
+            </header>
 
-            <!-- View 2: Add Fuel Record Form -->
-            <div id="view-add-fuel" class="view">
-                <button id="back-from-fuel" class="back-button" data-touch-feedback>
-                    <div class="back-icon icon" alt="Back"></div>
-                    Back to Vehicles
-                </button>
-                <h2 id="fuel-form-title">Add Fuel Record</h2>
-                <form id="add-fuel-form" class="record-form">
-                    <div class="form-group">
-                        <label for="fuel-date">Date</label>
-                        <input type="date" id="fuel-date" name="date" data-touch-feedback required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fuel-odometer"><span name="hours-odometer">Odometer</span></label>
-                        <input type="number" id="fuel-odometer" name="odometer" inputmode="numeric" data-touch-feedback required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fuel-cost">Total Cost</label>
-                        <input type="number" id="fuel-cost" name="cost" step="0.001" inputmode="decimal" data-touch-feedback required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fuel-gallons">Fuel Consumed (Gallons/Liters)</label>
-                        <input type="number" id="fuel-gallons" name="fuelConsumed" step="0.001" inputmode="decimal" data-touch-feedback required>
-                    </div>
-                    <!-- Toggle Switches -->
-                    <div class="form-group-row">
-                        <div class="toggle-group">
-                            <label for="fuel-is-full">Fill to Full</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="fuel-is-full" name="isFillToFull" data-touch-feedback checked>
-                                <span class="slider"></span>
-                            </label>
+            <main>
+                <!-- View 1: Vehicle List -->
+                <div id="view-vehicle-list" class="view active">
+                    <h2>My Vehicles</h2>
+                    <ul id="vehicle-list">
+                        <!-- Vehicle cards will be rendered here by JavaScript -->
+                    </ul>
+                </div>
+
+                <!-- View 2: Add Fuel Record Form -->
+                <div id="view-add-fuel" class="view">
+                    <button
+                        id="back-from-fuel"
+                        class="back-button"
+                        data-touch-feedback
+                    >
+                        <div class="back-icon icon" alt="Back"></div>
+                        Back to Vehicles
+                    </button>
+                    <h2 id="fuel-form-title">Add Fuel Record</h2>
+                    <form id="add-fuel-form" class="record-form">
+                        <div class="form-group">
+                            <label for="fuel-date">Date</label>
+                            <input
+                                type="date"
+                                id="fuel-date"
+                                name="date"
+                                data-touch-feedback
+                                required
+                            />
                         </div>
-                        <div class="toggle-group">
-                            <label for="fuel-missed">Missed Fuel&#8209;up</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="fuel-missed" name="missedFuelUp" data-touch-feedback>
-                                <span class="slider"></span>
-                            </label>
+                        <div class="form-group">
+                            <label for="fuel-odometer"
+                                ><span name="hours-odometer"
+                                    >Odometer</span
+                                ></label
+                            >
+                            <input
+                                type="number"
+                                id="fuel-odometer"
+                                name="odometer"
+                                inputmode="numeric"
+                                data-touch-feedback
+                                required
+                            />
                         </div>
-                    </div>
-                    <!-- Notes and Tags Expander -->
-                    <div class="form-expander">
-                        <div class="form-expander-header" data-touch-feedback>
-                            <span>Notes & Tags</span>
-                            <div class="chevron-icon icon"></div>
+                        <div class="form-group">
+                            <label for="fuel-cost">Total Cost</label>
+                            <input
+                                type="number"
+                                id="fuel-cost"
+                                name="cost"
+                                step="0.001"
+                                inputmode="decimal"
+                                data-touch-feedback
+                                required
+                            />
                         </div>
-                        <div class="form-details">
-                            <div class="form-group">
-                                <label for="fuel-notes">Notes</label>
-                                <textarea id="fuel-notes" name="notes" rows="3" data-touch-feedback></textarea>
+                        <div class="form-group">
+                            <label for="fuel-gallons"
+                                >Fuel Consumed (Gallons/Liters)</label
+                            >
+                            <input
+                                type="number"
+                                id="fuel-gallons"
+                                name="fuelConsumed"
+                                step="0.001"
+                                inputmode="decimal"
+                                data-touch-feedback
+                                required
+                            />
+                        </div>
+                        <!-- Toggle Switches -->
+                        <div class="form-group-row">
+                            <div class="toggle-group">
+                                <label for="fuel-is-full">Fill to Full</label>
+                                <label class="toggle-switch">
+                                    <input
+                                        type="checkbox"
+                                        id="fuel-is-full"
+                                        name="isFillToFull"
+                                        data-touch-feedback
+                                        checked
+                                    />
+                                    <span class="slider"></span>
+                                </label>
                             </div>
-                            <div class="form-group">
-                                <label for="fuel-tags">Tags (space-separated)</label>
-                                <input type="text" id="fuel-tags" name="tags" data-touch-feedback>
+                            <div class="toggle-group">
+                                <label for="fuel-missed"
+                                    >Missed Fuel&#8209;up</label
+                                >
+                                <label class="toggle-switch">
+                                    <input
+                                        type="checkbox"
+                                        id="fuel-missed"
+                                        name="missedFuelUp"
+                                        data-touch-feedback
+                                    />
+                                    <span class="slider"></span>
+                                </label>
                             </div>
                         </div>
-                    </div>
-                    <button type="submit" class="form-btn save-btn" data-touch-feedback>Save Record</button>
-                </form>
-            </div>
-            <!-- View 3: Add Odometer Record Form -->
-            <div id="view-add-odometer" class="view">
-                <button id="back-from-odometer" class="back-button" data-touch-feedback>
-                    <div class="back-icon icon" alt="Back"></div>
-                    Back to Vehicles
-                </button>
-                <h2 id="odometer-form-title">Add <span name="hours-odometer">Odometer</span> Record</h2>
-                <form id="add-odometer-form" class="record-form">
-                    <div class="form-group">
-                        <label for="odometer-date">Date</label>
-                        <input type="date" id="odometer-date" name="date" data-touch-feedback required>
-                    </div>
-                    <div class="form-group">
-                        <label for="odometer-odometer"><span name="hours-odometer">Odometer</span></label>
-                        <input type="number" id="odometer-odometer" name="odometer" inputmode="numeric" data-touch-feedback required>
-                    </div>
-                    <!-- Notes and Tags Expander -->
-                    <div class="form-expander">
-                        <div class="form-expander-header" data-touch-feedback>
-                            <span>Notes & Tags</span>
-                            <div class="chevron-icon icon"></div>
-                        </div>
-                        <div class="form-details">
-                            <div class="form-group">
-                                <label for="odometer-notes">Notes</label>
-                                <textarea id="odometer-notes" name="notes" rows="3" data-touch-feedback></textarea>
+                        <!-- Notes and Tags Expander -->
+                        <div class="form-expander">
+                            <div
+                                class="form-expander-header"
+                                data-touch-feedback
+                            >
+                                <span>Notes & Tags</span>
+                                <div class="chevron-icon icon"></div>
                             </div>
-                            <div class="form-group">
-                                <label for="odometer-tags">Tags (space-separated)</label>
-                                <input type="text" id="odometer-tags" name="tags" data-touch-feedback>
+                            <div class="form-details">
+                                <div class="form-group">
+                                    <label for="fuel-notes">Notes</label>
+                                    <textarea
+                                        id="fuel-notes"
+                                        name="notes"
+                                        rows="3"
+                                        data-touch-feedback
+                                    ></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="fuel-tags"
+                                        >Tags (space-separated)</label
+                                    >
+                                    <input
+                                        type="text"
+                                        id="fuel-tags"
+                                        name="tags"
+                                        data-touch-feedback
+                                    />
+                                </div>
                             </div>
                         </div>
+                        <button
+                            type="submit"
+                            class="form-btn save-btn"
+                            data-touch-feedback
+                        >
+                            Save Record
+                        </button>
+                    </form>
+                </div>
+                <!-- View 3: Add Odometer Record Form -->
+                <div id="view-add-odometer" class="view">
+                    <button
+                        id="back-from-odometer"
+                        class="back-button"
+                        data-touch-feedback
+                    >
+                        <div class="back-icon icon" alt="Back"></div>
+                        Back to Vehicles
+                    </button>
+                    <h2 id="odometer-form-title">
+                        Add <span name="hours-odometer">Odometer</span> Record
+                    </h2>
+                    <form id="add-odometer-form" class="record-form">
+                        <div class="form-group">
+                            <label for="odometer-date">Date</label>
+                            <input
+                                type="date"
+                                id="odometer-date"
+                                name="date"
+                                data-touch-feedback
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="odometer-odometer"
+                                ><span name="hours-odometer"
+                                    >Odometer</span
+                                ></label
+                            >
+                            <input
+                                type="number"
+                                id="odometer-odometer"
+                                name="odometer"
+                                inputmode="numeric"
+                                data-touch-feedback
+                                required
+                            />
+                        </div>
+                        <!-- Notes and Tags Expander -->
+                        <div class="form-expander">
+                            <div
+                                class="form-expander-header"
+                                data-touch-feedback
+                            >
+                                <span>Notes & Tags</span>
+                                <div class="chevron-icon icon"></div>
+                            </div>
+                            <div class="form-details">
+                                <div class="form-group">
+                                    <label for="odometer-notes">Notes</label>
+                                    <textarea
+                                        id="odometer-notes"
+                                        name="notes"
+                                        rows="3"
+                                        data-touch-feedback
+                                    ></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="odometer-tags"
+                                        >Tags (space-separated)</label
+                                    >
+                                    <input
+                                        type="text"
+                                        id="odometer-tags"
+                                        name="tags"
+                                        data-touch-feedback
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="form-btn save-btn"
+                            data-touch-feedback
+                        >
+                            Save Record
+                        </button>
+                    </form>
+                </div>
+                <!-- View 4: Saved Entries -->
+                <div id="view-saved-entries" class="view hidden">
+                    <div>
+                        <button
+                            id="back-from-saved"
+                            class="back-button"
+                            alt="Back"
+                            data-touch-feedback
+                        >
+                            <div class="back-icon icon"></div>
+                            Back
+                        </button>
+                        <h2 class="form-title">Saved Entries</h2>
                     </div>
-                                 
-                    <button type="submit" class="form-btn save-btn"data-touch-feedback >Save Record</button>
-                </form>
-            </div>
-            <!-- View 4: Saved Entries -->
-            <div id="view-saved-entries" class="view hidden">
-                <div>
-                    <button id="back-from-saved" class="back-button" alt="Back" data-touch-feedback>
+                    <div class="saved-entries-actions">
+                        <button
+                            id="retry-all-button"
+                            class="form-btn save-btn"
+                            data-touch-feedback
+                        >
+                            Retry All
+                        </button>
+                    </div>
+                    <ul id="saved-entries-list">
+                        <!-- Saved entries will be injected here by JavaScript -->
+                    </ul>
+                </div>
+                <!-- View 5: Toast History -->
+                <div id="view-toast-history" class="view">
+                    <button
+                        id="back-from-toast-history"
+                        class="back-button"
+                        data-touch-feedback
+                    >
                         <div class="back-icon icon"></div>
                         Back
                     </button>
-                    <h2 class="form-title">Saved Entries</h2>
+                    <h2 class="form-title">Notification History</h2>
+                    <ul id="toast-history-list">
+                        <!-- History items will be rendered here -->
+                    </ul>
                 </div>
-                <div class="saved-entries-actions">
-                    <button id="retry-all-button" class="form-btn save-btn" data-touch-feedback>Retry All</button>
-                </div>
-                <ul id="saved-entries-list">
-                    <!-- Saved entries will be injected here by JavaScript -->
-                </ul>
-            </div>
-            <!-- View 5: Toast History -->
-            <div id="view-toast-history" class="view">
-                <button id="back-from-toast-history" class="back-button" data-touch-feedback>
-                    <div class="back-icon icon"></div>
-                    Back
-                </button>
-                <h2 class="form-title">Notification History</h2>
-                <ul id="toast-history-list">
-                    <!-- History items will be rendered here -->
-                </ul>
-            </div>
-        </main>
+            </main>
 
-        <!-- Login Modal -->
-        <div id="login-modal" class="hidden">
-            <div id="login-modal-content">
-                <h2>LubeLogger Login</h2>
-                <form id="login-form">
-                    <div class="form-group">
-                        <label for="domain">Server IP/Domain</label>
-                        <input type="text" id="domain" name="domain" placeholder="e.g., https://sub.domain.com" data-touch-feedback required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username" autocomplete="username"data-touch-feedback >
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" data-touch-feedback required>
-                    </div>
-                    <button type="submit" id="login-button" data-touch-feedback>Login</button>
-                </form>
+            <!-- Login Modal -->
+            <div id="login-modal" class="hidden">
+                <div id="login-modal-content">
+                    <h2>LubeLogger Login</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="domain">Server IP/Domain</label>
+                            <input
+                                type="text"
+                                id="domain"
+                                name="domain"
+                                placeholder="e.g., https://sub.domain.com"
+                                data-touch-feedback
+                                required
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                autocomplete="username"
+                                data-touch-feedback
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                data-touch-feedback
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            id="login-button"
+                            data-touch-feedback
+                        >
+                            Login
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Side Menu -->
-    <div id="menu-overlay"></div>
-    <nav id="side-menu">
-        <!-- Close Menu Button -->
-        <button id="close-menu-button" class="close-menu-btn" aria-label="Close menu" data-touch-feedback>
-            <div id="close-menu-icon" class="icon"></div>
-        </button>
-        <ul>
-            <li>
-                <!-- Logout Button -->
-                <button id="logout-button" class="menu-item" data-touch-feedback>
-                    <div id="logout-icon" class="icon"></div>
-                    Logout
-                </button>
-            </li>
-            <li>
-                <!-- Saved Entries Button -->
-                <button id="saved-entries-button" class="menu-item" data-touch-feedback>
-                    Saved Entries
-                </button>
-            </li>
-            <li>
-                <!-- Notification History -->
-                <button id="toast-history-button" class="menu-item" data-touch-feedback>Notification History</button>
-            </li>
-            <!-- Update Checker -->
-            <li class="update-checker">
-                <button id="update-button" class="menu-item" data-touch-feedback>Check for Updates</button>
-            </li>
-            <li class="menu-setting">
-                <label for="theme-select">Theme:</label>
-                <select id="theme-select" data-touch-feedback>
-                    <option value="theme-dark">Dark</option>
-                    <option value="theme-light">Light</option>
-                    <option value="theme-og-dark">OG Dark</option>
-                </select>
-            </li>
-            <!-- Update Interval Selector -->
-            <li class="menu-setting menu-item">
-                <label for="refresh-interval-select">Auto-refresh every:</label>
-                <select id="refresh-interval-select" data-touch-feedback>
-                    <option value="1">1 Day</option>
-                    <option value="3">3 Days</option>
-                    <option value="7">1 Week</option>
-                    <option value="-1">Never</option>
-                </select>
-            </li>
-        </ul>
-    </nav>
+        <!-- Side Menu -->
+        <div id="menu-overlay"></div>
+        <nav id="side-menu">
+            <!-- Close Menu Button -->
+            <button
+                id="close-menu-button"
+                class="close-menu-btn"
+                aria-label="Close menu"
+                data-touch-feedback
+            >
+                <div id="close-menu-icon" class="icon"></div>
+            </button>
+            <ul>
+                <li>
+                    <!-- Logout Button -->
+                    <button
+                        id="logout-button"
+                        class="menu-item"
+                        data-touch-feedback
+                    >
+                        <div id="logout-icon" class="icon"></div>
+                        Logout
+                    </button>
+                </li>
+                <li>
+                    <!-- Saved Entries Button -->
+                    <button
+                        id="saved-entries-button"
+                        class="menu-item"
+                        data-touch-feedback
+                    >
+                        Saved Entries
+                    </button>
+                </li>
+                <li>
+                    <!-- Notification History -->
+                    <button
+                        id="toast-history-button"
+                        class="menu-item"
+                        data-touch-feedback
+                    >
+                        Notification History
+                    </button>
+                </li>
+                <!-- Update Checker -->
+                <li class="update-checker">
+                    <button
+                        id="update-button"
+                        class="menu-item"
+                        data-touch-feedback
+                    >
+                        Check for Updates
+                    </button>
+                </li>
+                <li class="menu-setting">
+                    <label for="theme-select">Theme:</label>
+                    <select id="theme-select" data-touch-feedback>
+                        <option value="theme-dark">Dark</option>
+                        <option value="theme-light">Light</option>
+                        <option value="theme-og-dark">OG Dark</option>
+                    </select>
+                </li>
+                <!-- Update Interval Selector -->
+                <li class="menu-setting menu-item">
+                    <label for="refresh-interval-select"
+                        >Auto-refresh every:</label
+                    >
+                    <select id="refresh-interval-select" data-touch-feedback>
+                        <option value="1">1 Day</option>
+                        <option value="3">3 Days</option>
+                        <option value="7">1 Week</option>
+                        <option value="-1">Never</option>
+                    </select>
+                </li>
+            </ul>
+        </nav>
 
-    <!-- Toast Notification -->
-    <div id="toast-notification" class="toast"></div>
+        <!-- Toast Notification -->
+        <div id="toast-notification" class="toast"></div>
 
-    <script type="module" src="./js/main.js" defer></script>
-</body>
+        <script type="module" src="./js/main.js" defer></script>
+    </body>
 </html>
