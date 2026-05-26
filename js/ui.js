@@ -1,19 +1,19 @@
 import { addToToastHistory, toastHistory } from "./state.js";
-import { vehicleList, fuelForm, odometerForm, retryAllButton, savedEntriesList } from "./eventlisteners.js";
+import {
+    vehicleList,
+    fuelForm,
+    odometerForm,
+    retryAllButton,
+    savedEntriesList,
+} from "./eventlisteners.js";
 // Views and elements
-// const vehicleListView = document.getElementById('view-vehicle-list');
-// const addFuelView = document.getElementById('view-add-fuel');
-// const addOdometerView = document.getElementById('view-add-odometer');
-// const viewSavedEntries = document.getElementById('view-saved-entries');
-// const addOdoOdoHeader = document.getElementById('odometer-form-title');
-// const addOdoOdoEntry = document.getElementById('odometer-odometer');
-const addFuelOdoEntry = document.getElementById('fuel-odometer');
-const fuelFormTitle = document.getElementById('fuel-form-title');
-const odometerFormTitle = document.getElementById('odometer-form-title');
-const loginModal = document.getElementById('login-modal');
-const loginForm = document.getElementById('login-form');
-const toast = document.getElementById('toast-notification');
-const themeColorMeta = document.getElementById('theme-color-meta');
+const addFuelOdoEntry = document.getElementById("fuel-odometer");
+const fuelFormTitle = document.getElementById("fuel-form-title");
+const odometerFormTitle = document.getElementById("odometer-form-title");
+const loginModal = document.getElementById("login-modal");
+const loginForm = document.getElementById("login-form");
+const toast = document.getElementById("toast-notification");
+const themeColorMeta = document.getElementById("theme-color-meta");
 let vehiclesCache = [];
 let toastTimeout;
 
@@ -24,28 +24,35 @@ let toastTimeout;
  * @param {boolean} isHistoryNavigation - Whether or not the user is trying to navigate the browser history.
  */
 function showView(viewId, data, isHistoryNavigation = false) {
-    document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+    document
+        .querySelectorAll(".view")
+        .forEach((view) => view.classList.remove("active"));
     const viewToShow = document.getElementById(viewId);
     if (viewToShow) {
-        viewToShow.classList.add('active');
+        viewToShow.classList.add("active");
     }
 
     // Add a new entry to the browser's history unless we're navigating via the back button
     if (!isHistoryNavigation) {
         const url = `#${viewId}`;
-        history.pushState({ viewId, data }, '', url);
+        history.pushState({ viewId, data }, "", url);
     }
 
-    if (viewId === 'view-add-fuel') {
-        const vehicle = vehiclesCache.find(v => v.vehicleData.id === data.vehicleId);
+    if (viewId === "view-add-fuel") {
+        const vehicle = vehiclesCache.find(
+            (v) => v.vehicleData.id === data.vehicleId,
+        );
         if (vehicle) {
             fuelFormTitle.textContent = `Add Fuel for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
             fuelForm.dataset.vehicleId = data.vehicleId;
-            if (vehicle.vehicleData.odometerOptional === true) addFuelOdoEntry.required = false;
+            if (vehicle.vehicleData.odometerOptional === true)
+                addFuelOdoEntry.required = false;
             else addFuelOdoEntry.required = true;
         }
-    } else if (viewId === 'view-add-odometer') {
-        const vehicle = vehiclesCache.find(v => v.vehicleData.id === data.vehicleId);
+    } else if (viewId === "view-add-odometer") {
+        const vehicle = vehiclesCache.find(
+            (v) => v.vehicleData.id === data.vehicleId,
+        );
         if (vehicle) {
             odometerFormTitle.textContent = `Add ${vehicle.vehicleData.useHours ? "Engine Hours" : "Odometer"} for ${vehicle.vehicleData.year} ${vehicle.vehicleData.make}`;
             odometerForm.dataset.vehicleId = data.vehicleId;
@@ -63,13 +70,13 @@ function createVehicleCard(vehicle) {
     let vehicleIdentifier;
     if (vehicle.vehicleData.vehicleIdentifier !== "LicensePlate") {
         const identBy = vehicle.vehicleData.vehicleIdentifier;
-        vehicleIdentifier = vehicle.vehicleData.extraFields.map(fld => {
-            if (fld.name === identBy) return fld.value
+        vehicleIdentifier = vehicle.vehicleData.extraFields.map((fld) => {
+            if (fld.name === identBy) return fld.value;
         });
-    } else vehicleIdentifier = vehicle.vehicleData.licensePlate || 'No Plate';
+    } else vehicleIdentifier = vehicle.vehicleData.licensePlate || "No Plate";
 
     // Use optional chaining to safely get the odometer reading.
-    const latestOdometer = vehicle.lastReportedOdometer?.toString() || 'N/A';
+    const latestOdometer = vehicle.lastReportedOdometer?.toString() || "N/A";
     const hrsOdo = vehicle.vehicleData.useHours ? "Engine Hours" : "Odometer";
 
     return `
@@ -102,11 +109,11 @@ function createVehicleCard(vehicle) {
 function renderVehicles(vehicles) {
     vehiclesCache = vehicles;
     if (!vehicles || vehicles.length === 0) {
-        vehicleList.innerHTML = '<p>No vehicles found.</p>';
+        vehicleList.innerHTML = "<p>No vehicles found.</p>";
         return;
     }
 
-    const vehicleCardsHTML = vehicles.map(createVehicleCard).join('');
+    const vehicleCardsHTML = vehicles.map(createVehicleCard).join("");
     vehicleList.innerHTML = vehicleCardsHTML;
 }
 
@@ -114,23 +121,30 @@ function renderVehicles(vehicles) {
  * Renders the list of saved (offline) entries into the DOM.
  */
 function renderSavedEntries(entriesToRender) {
-    const savedEntries = entriesToRender 
-        ? entriesToRender 
-        : JSON.parse(localStorage.getItem('savedEntries')) || [];
+    const savedEntries = entriesToRender
+        ? entriesToRender
+        : JSON.parse(localStorage.getItem("savedEntries")) || [];
     if (savedEntries.length === 0) {
-        savedEntriesList.innerHTML = '<li><p class="no-vehicles-message">No saved entries.</p></li>';
-        retryAllButton.style.display = 'none'; // Hide button if no entries
+        savedEntriesList.innerHTML =
+            '<li><p class="no-vehicles-message">No saved entries.</p></li>';
+        retryAllButton.style.display = "none"; // Hide button if no entries
         return;
     }
 
-    retryAllButton.style.display = 'block'; // Show button if there are entries
-    savedEntriesList.innerHTML = savedEntries.map((entry, index) => {
-        const vehicle = vehiclesCache.find(v => v.vehicleData.id === entry.vehicleId);
-        const vehicleName = vehicle ? `${vehicle.vehicleData.year} ${vehicle.vehicleData.make} ${vehicle.vehicleData.model}` : 'Unknown Vehicle';
-        const entryType = entry.type.charAt(0).toUpperCase() + entry.type.slice(1);
-        const timestamp = new Date(entry.timestamp).toLocaleString();
+    retryAllButton.style.display = "block"; // Show button if there are entries
+    savedEntriesList.innerHTML = savedEntries
+        .map((entry, index) => {
+            const vehicle = vehiclesCache.find(
+                (v) => v.vehicleData.id === entry.vehicleId,
+            );
+            const vehicleName = vehicle
+                ? `${vehicle.vehicleData.year} ${vehicle.vehicleData.make} ${vehicle.vehicleData.model}`
+                : "Unknown Vehicle";
+            const entryType =
+                entry.type.charAt(0).toUpperCase() + entry.type.slice(1);
+            const timestamp = new Date(entry.timestamp).toLocaleString();
 
-        return `
+            return `
             <li class="saved-entry-card" data-entry-index="${index}">
                 <p><strong>Vehicle:</strong> ${vehicleName}</p>
                 <p><strong>Type:</strong> ${entryType} Record</p>
@@ -141,35 +155,38 @@ function renderSavedEntries(entriesToRender) {
                 </div>
             </li>
         `;
-    }).join('');
+        })
+        .join("");
 }
 
 /**
  * Renders the toast history into the DOM.
  */
 function renderToastHistory() {
-    const historyList = document.getElementById('toast-history-list');
+    const historyList = document.getElementById("toast-history-list");
     if (!historyList) return;
 
     // Get the history, reverse it to show newest first
     const reversedHistory = [...toastHistory].reverse();
 
     if (reversedHistory.length === 0) {
-        historyList.innerHTML = '<li><p class="no-vehicles-message">No notifications yet.</p></li>';
+        historyList.innerHTML =
+            '<li><p class="no-vehicles-message">No notifications yet.</p></li>';
         return;
     }
 
-    historyList.innerHTML = reversedHistory.map(entry => {
-        const timestamp = new Date(entry.timestamp).toLocaleString();
-        return `
+    historyList.innerHTML = reversedHistory
+        .map((entry) => {
+            const timestamp = new Date(entry.timestamp).toLocaleString();
+            return `
             <li class="toast-history-item ${entry.type}">
                 <p class="toast-history-message">${entry.message}</p>
                 <p class="toast-history-timestamp">${timestamp}</p>
             </li>
         `;
-    }).join('');
+        })
+        .join("");
 }
-
 
 /**
  * Displays a toast notification.
@@ -177,24 +194,24 @@ function renderToastHistory() {
  * @param {string} [type='success'] - The type of toast ('success' or 'error').
  * @param {boolean} [autoHide = true] - Indicates whether the toast will autohide after given time period.
  */
-function showToast(content, type = 'success', autoHide = true) {
+function showToast(content, type = "success", autoHide = true) {
     if (toastTimeout) clearTimeout(toastTimeout);
-    if (typeof content === 'string') addToToastHistory(content, type);
+    if (typeof content === "string") addToToastHistory(content, type);
 
-    toast.innerHTML = ''; 
+    toast.innerHTML = "";
 
-    if (typeof content === 'string') {
+    if (typeof content === "string") {
         toast.textContent = content;
     } else {
         toast.appendChild(content); // Append the element if it's not a string
     }
-    
-    toast.className = 'toast';
+
+    toast.className = "toast";
     toast.classList.add(type);
-    toast.classList.add('active');
+    toast.classList.add("active");
 
     if (autoHide) {
-        toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
+        toastTimeout = setTimeout(() => toast.classList.remove("active"), 3000);
     }
 }
 
@@ -202,47 +219,56 @@ function showToast(content, type = 'success', autoHide = true) {
  * Closes the Side Menu
  */
 function closeSideMenu() {
-    document.body.classList.remove('menu-open');
+    document.body.classList.remove("menu-open");
 }
 
 /**
  * Shows a custom toast notification prompting the user to reload to apply an update.
  */
 function showUpdateNotification() {
-    const toastContent = document.createElement('div');
-    toastContent.style.display = 'flex';
-    toastContent.style.alignItems = 'center';
+    const toastContent = document.createElement("div");
+    toastContent.style.display = "flex";
+    toastContent.style.alignItems = "center";
     toastContent.textContent = "A new version is ready! ";
 
-    const reloadButton = document.createElement('button');
-    reloadButton.textContent = 'Reload';
-    reloadButton.style.marginLeft = '1rem';
-    reloadButton.style.border = '1px solid white';
-    reloadButton.style.background = 'transparent';
-    reloadButton.style.color = 'white';
-    reloadButton.style.borderRadius = '5px';
-    reloadButton.style.padding = '5px 10px';
-    reloadButton.style.cursor = 'pointer';
+    const reloadButton = document.createElement("button");
+    reloadButton.textContent = "Reload";
+    reloadButton.style.marginLeft = "1rem";
+    reloadButton.style.border = "1px solid white";
+    reloadButton.style.background = "transparent";
+    reloadButton.style.color = "white";
+    reloadButton.style.borderRadius = "5px";
+    reloadButton.style.padding = "5px 10px";
+    reloadButton.style.cursor = "pointer";
 
     reloadButton.onclick = () => {
         // Find the waiting service worker and tell it to take over.
-        navigator.serviceWorker.getRegistration().then(reg => {
-            reg.waiting.postMessage({ action: 'skipWaiting' });
+        navigator.serviceWorker.getRegistration().then((reg) => {
+            reg.waiting.postMessage({ action: "skipWaiting" });
         });
     };
 
     toastContent.appendChild(reloadButton);
-    showToast(toastContent, 'success', false);
+    showToast(toastContent, "success", false);
 }
 
 function updateThemeColor() {
     const bodyStyles = window.getComputedStyle(document.body);
-    const headerColor = bodyStyles.getPropertyValue('--bg-secondary').trim();
-    if (themeColorMeta) themeColorMeta.setAttribute('content', headerColor);
+    const headerColor = bodyStyles.getPropertyValue("--bg-secondary").trim();
+    if (themeColorMeta) themeColorMeta.setAttribute("content", headerColor);
 }
 
-export { showUpdateNotification, renderSavedEntries, 
-    showView, closeSideMenu, loginForm, loginModal, 
-    renderVehicles, showToast, toast, toastTimeout,
-    updateThemeColor, renderToastHistory
- };
+export {
+    showUpdateNotification,
+    renderSavedEntries,
+    showView,
+    closeSideMenu,
+    loginForm,
+    loginModal,
+    renderVehicles,
+    showToast,
+    toast,
+    toastTimeout,
+    updateThemeColor,
+    renderToastHistory,
+};

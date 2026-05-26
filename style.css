@@ -74,18 +74,21 @@ body.theme-og-dark {
 }
 
 /* --- CSS Reset & Base Styles --- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-html, body {
+html,
+body {
     min-height: 100vh;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     background-color: var(--bg-primary);
     color: #f3f4f6;
     -webkit-font-smoothing: antialiased;
@@ -110,9 +113,9 @@ body.menu-open {
     display: inline-block;
     width: 24px;
     height: 24px;
-    
+
     /* This is the key: the background color is our theme color */
-    background-color: var(--text-primary); 
+    background-color: var(--text-primary);
 
     /* These properties use an SVG file as a stencil */
     -webkit-mask-size: contain;
@@ -261,7 +264,9 @@ main h2 {
 .vehicle-card {
     background-color: var(--bg-overlay);
     border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    box-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -2px rgb(0 0 0 / 0.1);
     color: inherit;
     transition: background-color 200ms ease-in-out;
     overflow: hidden;
@@ -273,8 +278,7 @@ main h2 {
     align-items: center;
     padding: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s ease-out; 
-
+    transition: background-color 0.3s ease-out;
 }
 
 .card-header h2 {
@@ -304,7 +308,9 @@ main h2 {
     padding: 0 1rem;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.35s ease-out, padding 0.35s ease-out;
+    transition:
+        max-height 0.35s ease-out,
+        padding 0.35s ease-out;
 }
 
 .vehicle-card.expanded .card-details {
@@ -417,8 +423,7 @@ main h2 {
     cursor: pointer;
     font-weight: 500;
     color: var(--text-secondary);
-    transition: background-color 0.3s ease-out; 
-
+    transition: background-color 0.3s ease-out;
 }
 
 .form-details {
@@ -446,7 +451,7 @@ input[type="text"] {
     font-size: 1rem;
     outline: none;
     transition: box-shadow 150ms ease-in-out;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     resize: vertical;
 }
 
@@ -471,7 +476,9 @@ input[type="text"]:focus {
     padding: 0.75rem 1rem;
     background-color: var(--bg-secondary);
     border-radius: 0 0.375rem 0.375rem 0;
-    box-shadow: var(--shadow-color) 0px 1px 3px 0px, var(--shadow-color) 0px 1px 2px -1px;
+    box-shadow:
+        var(--shadow-color) 0px 1px 3px 0px,
+        var(--shadow-color) 0px 1px 2px -1px;
 }
 
 .toast-history-item.success {
@@ -519,7 +526,9 @@ input[type="text"]:focus {
     border-radius: 0.75rem;
     width: 90%;
     max-width: 24rem;
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.3),
+        0 4px 6px -4px rgb(0 0 0 / 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -547,7 +556,8 @@ input[type="text"]:focus {
     margin-bottom: 0.5rem;
 }
 
-.form-group input, textarea {
+.form-group input,
+textarea {
     width: 100%;
     padding: 0.75rem;
     background-color: var(--bg-interactive);
@@ -620,7 +630,7 @@ input[type="text"]:focus {
     background-color: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     border-radius: 28px;
-    transition: .4s;
+    transition: 0.4s;
 }
 
 .slider:before {
@@ -632,7 +642,7 @@ input[type="text"]:focus {
     bottom: 3px;
     background-color: white;
     border-radius: 50%;
-    transition: .4s;
+    transition: 0.4s;
 }
 
 input:checked + .slider {
@@ -669,7 +679,7 @@ body.menu-open #menu-overlay {
     width: 280px;
     height: 100%;
     background-color: var(--bg-secondary);
-    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
     transform: translateX(100%);
     transition: transform 0.3s ease-in-out;
     z-index: 2000;
@@ -779,7 +789,7 @@ body.menu-open #side-menu {
 .saved-entry-actions .delete-btn {
     background-color: var(--accent-danger);
     border-color: var(--accent-danger);
-    color: #ffffff; 
+    color: #ffffff;
 }
 
 .no-vehicles-message {
@@ -801,7 +811,7 @@ body.menu-open #side-menu {
 }
 
 #update-button.update-available {
-    color: #27ae60; 
+    color: #27ae60;
     font-weight: 700;
 }
 
@@ -813,15 +823,17 @@ body.menu-open #side-menu {
     transform: translate(-50%, 150%);
     padding: 1rem 1.5rem;
     border-radius: 0.5rem;
-    background-color: #27ae60; 
+    background-color: #27ae60;
     color: #ffffff;
     font-weight: 500;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     opacity: 0;
-    transition: transform 0.2s ease-out, opacity 0.4s ease-out;
+    transition:
+        transform 0.2s ease-out,
+        opacity 0.4s ease-out;
     z-index: 2000;
-    pointer-events: none; 
+    pointer-events: none;
     max-width: 90%;
     min-height: fit-content;
 }
@@ -915,4 +927,3 @@ button {
         border-color: var(--accent-danger-hover);
     }
 }
-
